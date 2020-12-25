@@ -12,8 +12,7 @@ export default class Report extends Component {
     super(props);
     this.state = {
       StudentID: this.props.TimeingStore.getUser.StudentID,
-      //ScholarshipID:this.props.user.user.id,
-      curTime: '',//לא צריך
+      curTime: '',
       startTime: '',
       endTime: '',
       startlatitude: 'unknown',
