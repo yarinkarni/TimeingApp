@@ -1,17 +1,17 @@
 import { observable, action, computed } from 'mobx';
 import { persist, create } from 'mobx-persist';
 import PushNotification from "react-native-push-notification";
-
+//החנות שלי לשמירת נתונים
 class TimeingStore {
-  //משתנה שנשמר במכשיר
+  //משתנים שנשמרים במכשיר
   @persist @observable userData = null
   @persist('object') @observable reportData = null;
 
-  //משתנה לוקאלי של האפליקציה
-  @observable user = 'ron';
+  //משתנים לוקאלי של האפליקציה
+  @observable user = '';
   @observable ScholarshipDetails = null;
   @observable news = [];
-  @observable Token = 'yarin';
+  @observable Token = '';
   @observable scholorships = [];
   @observable scholarshipByStudent = []
 

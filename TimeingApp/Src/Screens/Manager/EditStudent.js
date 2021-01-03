@@ -2,6 +2,9 @@ import React, { Component } from 'react'
 import { View, StyleSheet, Text, ScrollView } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 let url = 'http://site04.up2app.co.il/';
+import { observer, inject } from 'mobx-react'
+@inject("TimeingStore")
+@observer
 export default class EditStudent extends Component {
   constructor(props) {
     super(props);
@@ -13,8 +16,12 @@ export default class EditStudent extends Component {
     }
   }
   componentDidMount() {
-    this.GetStudentByScholarshipID();
-    this.GetStudents();
+    console.log(this.props.route.params.ScholarshipDetails.ScholarshipID,"this.props.ScholarshipDetails")
+    const Scholarships = this.props.TimeingStore.getScholorships
+    console.log(Scholarships.map(e=>e.ScholarshipID),"Scholarships edit stu")
+    //this.setState({})
+    //this.GetStudentByScholarshipID();
+    //this.GetStudents();
   }
   GetStudentByScholarshipID() {
     fetch('http://site04.up2app.co.il/getRequestsByScholarshipID/1',
@@ -34,7 +41,7 @@ export default class EditStudent extends Component {
       }
       )
       .then((data) => {
-        if (!data.toString().includes("could not get all the students!")) {
+        if (data) {
           this.setState({ studentsRequests: data });
           //console.log(data[1].StudentID + ' not')
           //console.log(this.state.studentsRequests[1].StudentID + '   yes')
@@ -53,12 +60,12 @@ export default class EditStudent extends Component {
       //console.log(this.state.studentsRequests[index].StudentID + '.state.studentsRequests[index].StudentID')
       fetch(url + 'getStudentByID/' + this.state.studentsRequests[index].StudentID,
         {
-          method: 'GET', // 'GET', 'POST', 'PUT', 'DELETE', etc.
+          method: 'GET',
           headers: new Headers({
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           }),
-        }) // Call the fetch function passing the url of the API as a parameter
+        })
         .then((resp) => {
           if (resp.status === 200) {
             return resp.json();
@@ -66,11 +73,11 @@ export default class EditStudent extends Component {
           else
             return "could not get all the students!";
         }
-        ) // Transform the data into json
+        ) 
         .then((data) => {
-          if (!data.toString().includes("could not get all the students!")) {
+          if (data) {
             this.setState({ students: [...this.state.students, data] });
-            //console.log(this.state.students.StudentID+'feth')
+            console.log(this.state.students.StudentID+'feth')
           }
           else {
             console.log('didnt inserted!');

@@ -17,7 +17,9 @@ import ManagementPage from './Src/Screens/Manager/ManagementPage';
 import WatchingHours from './Src/Screens/Student/WatchingHours';
 import AddScholarshipPage from './Src/Screens/Manager/AddScholarshipPage';
 import EditStudent from './Src/Screens/Manager/EditStudent';
-import Messages from './Src/Screens/Messages';
+import menu from './Src/Screens/Student/menu';
+import ApprovalOfReports from './Src/Screens/Manager/ApprovalOfReports';
+import ApprovalOfScholarships from './Src/Screens/Manager/ApprovalOfScholarships';
 class App extends React.Component {
   render() {
     return (
@@ -34,7 +36,7 @@ const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
 function MyDrawer() {
   return (
-    <Drawer.Navigator initialRouteName="ScholarshipList">
+    <Drawer.Navigator initialRouteName="Login">
       <Drawer.Screen
         name="ScholarshipList"
         component={ScholarshipList}
@@ -91,9 +93,19 @@ function MyDrawer() {
         options={{ drawerLabel: 'EditStudent' }}
       />
       <Drawer.Screen
-        name="Messages"
-        component={Messages}
-        options={{ drawerLabel: 'Messages' }}
+        name="menu"
+        component={menu}
+        options={{ drawerLabel: 'menu' }}
+      />
+      <Drawer.Screen
+        name="ApprovalOfReports"
+        component={ApprovalOfReports}
+        options={{ drawerLabel: 'ApprovalOfReports' }}
+      />
+      <Drawer.Screen
+        name="ApprovalOfScholarships"
+        component={ApprovalOfScholarships}
+        options={{ drawerLabel: 'ApprovalOfScholarships' }}
       />
     </Drawer.Navigator>
   );
@@ -116,7 +128,9 @@ const App2 = () => {
           <Stack.Screen name="WatchingHours" component={WatchingHours} />
           <Stack.Screen name="AddScholarshipPage" component={AddScholarshipPage} />
           <Stack.Screen name="EditStudent" component={EditStudent} />
-          <Stack.Screen name="Messages" component={Messages} />
+          <Stack.Screen name="menu" component={menu} />
+          <Stack.Screen name="ApprovalOfReports" component={ApprovalOfReports} />
+          <Stack.Screen name="ApprovalOfScholarships" component={ApprovalOfScholarships} />
         </Stack.Navigator>
       </MyDrawer>
     </NavigationContainer>

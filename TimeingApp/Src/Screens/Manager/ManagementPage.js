@@ -45,31 +45,31 @@ export default class ManagementPage extends Component {
       });
   }
   btnDeleteScholarship = (Scholarship) => {
-    //console.log('Delete    ' + Scholarship.ScholarshipID)
-    fetch(url + 'DeleteScholarship/' + Scholarship.ScholarshipID,
-      {
-        method: 'DELETE',
-        headers: new Headers({
-          'Accept': 'application/json'
-        }),
-      })
-      .then((resp) => {
-        if (resp.status === 200) {
-          let newStudents = this.state.Scholarship.filter(stu => stu.ID !== Scholarship.ScholarshipID);
-          this.setState({
-            Scholarship: newStudents
-          });
-        }
-        else if (resp.status === 400)
-          console.log("BadRequest");
-        else
-          console.log("NotFound");
+    console.log('Delete    ' + Scholarship.ScholarshipID)
+    // fetch(url + 'DeleteScholarship/' + Scholarship.ScholarshipID,
+    //   {
+    //     method: 'DELETE',
+    //     headers: new Headers({
+    //       'Accept': 'application/json'
+    //     }),
+    //   })
+    //   .then((resp) => {
+    //     if (resp.status === 200) {
+    //       let newStudents = this.state.Scholarship.filter(stu => stu.ID !== Scholarship.ScholarshipID);
+    //       this.setState({
+    //         Scholarship: newStudents
+    //       });
+    //     }
+    //     else if (resp.status === 400)
+    //       console.log("BadRequest");
+    //     else
+    //       console.log("NotFound");
 
-      }
-      )
-      .catch(function (err) {
-        alert(err);
-      });
+    //   }
+    //   )
+    //   .catch(function (err) {
+    //     alert(err);
+    //   });
   }
   render() {
     //    console.log(this.props.TimeingStore.getUser.UserID + 'this.props.TimeingStore.getUser.UserID,')
@@ -85,6 +85,7 @@ export default class ManagementPage extends Component {
     //   console.log(Scholarship[i].Remarks+ 'Scholarship['+i+'].Remarks')
     // }
     var cards = [];
+    //מציג את כל המלגות של אותו מנהל בכרטיסיות עם תפריט לכל מלגה
     for (let index = 0; index < Scholarship.length; index++) {
       cards.push(
         <Card key={index}>
@@ -137,58 +138,16 @@ export default class ManagementPage extends Component {
               color="#FEB557"
             />
             <CardButton
-              onPress={() => {
-                Alert.alert(
-                  'האם למחוק את המלגה ?',
-                  '',
-                  //My Alert Msg
-                  [
-                    {
-                      text: '',
-                      //Ask me later
-                      onPress: () => console.log('Ask me later pressed')
-                    },
-                    {
-                      text: 'לא',
-                      onPress: () => console.log('Cancel Pressed'),
-                      style: 'cancel',
-                    },
-                    {
-                      text: 'כן',
-                      onPress: () => this.btnDeleteScholarship(Scholarship[index])
-                    },
-                  ],
-                  { cancelable: false },
-                );
-              }}
+              onPress={() => this.props.navigation.navigate('ApprovalOfScholarships'
+                , { ScholarshipDetails: Scholarship[index] }
+              )}
               title="סטודנטים"
               color="#FEB557"
             />
             <CardButton
-              onPress={() => {
-                Alert.alert(
-                  'האם למחוק את המלגה ?',
-                  '',
-                  //My Alert Msg
-                  [
-                    {
-                      text: '',
-                      //Ask me later
-                      onPress: () => console.log('Ask me later pressed')
-                    },
-                    {
-                      text: 'לא',
-                      onPress: () => console.log('Cancel Pressed'),
-                      style: 'cancel',
-                    },
-                    {
-                      text: 'כן',
-                      onPress: () => this.btnDeleteScholarship(Scholarship[index])
-                    },
-                  ],
-                  { cancelable: false },
-                );
-              }}
+              onPress={() => this.props.navigation.navigate('ApprovalOfReports'
+                , { ScholarshipDetails: Scholarship[index] }
+              )}
               title="אישור שעות"
               color="#FEB557"
             />

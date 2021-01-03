@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
-import { View, Text, StyleSheet, TextInput, ScrollView } from 'react-native'
-import InputOutline from 'react-native-input-outline';
+import { View, Text, StyleSheet, TextInput } from 'react-native'
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-let url = 'http://site04.up2app.co.il/';
+import { Api } from '../../Components/api';
 
 export default class EditScholarship extends Component {
-  constructor(props) {
+  
+   constructor(props) {
     super(props);
     this.state = {
       ScholarshipID: this.props.route.params.ScholarshipDetails.ScholarshipID,
@@ -21,18 +21,8 @@ export default class EditScholarship extends Component {
   txtchgNameOfTheScholarship = (NameOfTheScholarship) => this.setState({ NameOfTheScholarship });
   txtchgDueDate = (DueDate) => this.setState({ DueDate });
   txtchgRemarks = (Remarks) => this.setState({ Remarks });
-
-  btnEditScholarship = async () => {
-    let s = await this.EditScholarship(this.state.ScholarshipID, this.state.IsActive, this.state.UserID, this.state.Conditions, this.state.NameOfTheScholarship, this.state.DueDate, this.state.Remarks);
-    if (s == null) {
-      alert('didnt inserted into db!');
-    }
-    else {
-      this.props.navigation.navigate('ManagementPage');
-    }
-  }
-  EditScholarship = async (ScholarshipID, IsActive, UserID, Conditions, NameOfTheScholarship, DueDate, Remarks) => {
-    let returnedObj = null;
+  EditScholarship = async () => {
+    const { ScholarshipID, IsActive, UserID, Conditions, NameOfTheScholarship, DueDate, Remarks } = this.state
     let obj2Send = {
       "ScholarshipID": ScholarshipID,
       "IsActive": IsActive,
@@ -42,81 +32,58 @@ export default class EditScholarship extends Component {
       "DueDate": DueDate,
       "Remarks": Remarks
     }
-    await fetch(url + 'updateScholarship',
-      {
-        method: 'PUT',
-        body: JSON.stringify(obj2Send),
-        headers: new Headers({
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }),
-      })
-      .then((resp) => resp.json())
-      .then(function (data) {
-        if (!data.toString().includes("could not insert")) {
-          returnedObj = data;
-        }
-        else {
-          returnedObj = null;
-        }
-      })
-      .catch(function (err) {
-        alert(err);
-      });
-
-    return returnedObj;
+       const res = await Api("updateScholarship", "PUT", obj2Send)
+       if (res) {
+         alert("המלגה עודכנה בהצלחה :)")
+         this.props.navigation.navigate('ManagementPage');
+       } else {
+         alert("העידכון נכשל :(")
+       }
+       return res;
   }
   render() {
-    // console.log(this.state.ScholarshipID + 'this.props.route.params.ScholarshipDetails.ScholarshipID')
-    // console.log(this.state.IsActive + 'this.props.route.params.ScholarshipDetails.IsActive')
-    // console.log(this.state.UserID + 'this.props.route.params.ScholarshipDetails.UserID')
-    // console.log(this.state.Conditions + 'this.props.route.params.ScholarshipDetails.Conditions')
-    // console.log(this.state.NameOfTheScholarship + 'this.props.route.params.ScholarshipDetails.NameOfTheScholarship')
-    // console.log(this.state.DueDate + 'this.props.route.params.ScholarshipDetails.DueDate')
-    // console.log(this.state.Remarks + 'this.props.route.params.ScholarshipDetails.Remarks')
-    //const { ScholarshipDetails } = this.props.route.params;
+
     return (
       <View style={styles.container}>
-        {/* <ScrollView contentContainerStyle={styles.scrollContentContainer}> */}
-          <View>
-            <Text>edit Scholarship</Text>
-          </View>
-          <TextInput
-            style={styles.inputContainer}
-            placeholder="תנאים"
-            focusedColor='blue'
-            defaultColor='grey'
-            value={this.state.Conditions}
-            onChangeText={(text) => { this.txtchgConditions(text) }}
-          />
-          <TextInput
-            style={styles.inputContainer}
-            placeholder="שם המלגה"
-            focusedColor='blue'
-            defaultColor='grey'
-            value={this.state.NameOfTheScholarship}
-            onChangeText={(text) => { this.txtchgNameOfTheScholarship(text) }}
-          />
-          <TextInput
-            style={styles.inputContainer}
-            placeholder="תאריך להגשה"
-            focusedColor='blue'
-            defaultColor='grey'
-            value={this.state.DueDate}
-            onChangeText={(text) => { this.txtchgDueDate(text) }}
-          />
-          <TextInput
-            style={styles.inputContainer}
-            placeholder="הערות"
-            focusedColor='blue'
-            defaultColor='black'
-            // 'grey'
-            value={this.state.Remarks}
-            onChangeText={(text) => { this.txtchgRemarks(text) }}
-          />
-          <FontAwesome name="user-plus" size={120} style={styles.fab}
-            onPress={this.btnEditScholarship}
-          />
+        <View>
+          <Text>edit Scholarship</Text>
+        </View>
+        <TextInput
+          style={styles.inputContainer}
+          placeholder="תנאים"
+          focusedColor='blue'
+          defaultColor='grey'
+          value={this.state.Conditions}
+          onChangeText={(text) => { this.txtchgConditions(text) }}
+        />
+        <TextInput
+          style={styles.inputContainer}
+          placeholder="שם המלגה"
+          focusedColor='blue'
+          defaultColor='grey'
+          value={this.state.NameOfTheScholarship}
+          onChangeText={(text) => { this.txtchgNameOfTheScholarship(text) }}
+        />
+        <TextInput
+          style={styles.inputContainer}
+          placeholder="תאריך להגשה"
+          focusedColor='blue'
+          defaultColor='grey'
+          value={this.state.DueDate}
+          onChangeText={(text) => { this.txtchgDueDate(text) }}
+        />
+        <TextInput
+          style={styles.inputContainer}
+          placeholder="הערות"
+          focusedColor='blue'
+          defaultColor='black'
+          // 'grey'
+          value={this.state.Remarks}
+          onChangeText={(text) => { this.txtchgRemarks(text) }}
+        />
+        <FontAwesome name="user-plus" size={120} style={styles.fab}
+          onPress={this.EditScholarship}
+        />
         {/* </ScrollView> */}
       </View>
     )
@@ -129,7 +96,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#1E90FF',
     opacity: 0.7,
-    
+
     //backgroundColor: '#DCDCDC',
   },
   inputContainer: {

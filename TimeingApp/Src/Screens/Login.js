@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { Alert, Text, View, TouchableHighlight, ImageBackground, StyleSheet, TextInput, Image } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Icon from 'react-native-vector-icons/Feather';
+import Fontisto from 'react-native-vector-icons/Fontisto';
 
 let url = 'http://site04.up2app.co.il/';
 import { observer, inject } from 'mobx-react'
@@ -11,8 +12,8 @@ export default class Login extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      email: 'karni@a.com',
-      password: '123',
+      email: 'g@g.com',
+      password: '1234',
       picker: 'סטודנט',
     }
   }
@@ -21,6 +22,7 @@ export default class Login extends Component {
   txtchgPass = (password) => this.setState({ password });
   btnSignUp = () => this.props.navigation.navigate('Register');
   btnLogin = async () => {
+    //consot
     if (this.state.picker === 'מנהל מלגה') {
       let s = await this.checkStudentDetilsForUser(this.state.email, this.state.password);
       if (s !== null) {
@@ -34,7 +36,8 @@ export default class Login extends Component {
       let s = await this.checkStudentDetilsForStudnet(this.state.email, this.state.password);
       if (s !== null) {
         this.props.TimeingStore.setUser(s)
-        this.props.navigation.navigate('Report');
+        console.log(this.props.TimeingStore.getUser,'this.props.TimeingStore.getUser')
+        this.props.navigation.navigate('menu');
       }
       else
         Alert.alert('האימייל או הסיסמא שגויים');
@@ -97,11 +100,7 @@ export default class Login extends Component {
         style={styles.container}>
         <View style={styles.inner}>
           <Text style={styles.SecondTopic}>כניסה</Text>
-          <TouchableHighlight
-            style={[styles.MainButton, styles.loginButton]}
-            onPress={this.btnSignUp}>
-            <Text style={styles.loginText}>הירשם</Text>
-          </TouchableHighlight>
+
           <View style={{ padding: 20 }}>
             <DropDownPicker
               items={[
@@ -113,10 +112,11 @@ export default class Login extends Component {
               style={{
                 backgroundColor: '#fafafa',
                 width: 270,
-                position: 'relative'
+                position: 'relative',
               }}
               itemStyle={{
-                justifyContent: 'flex-start'
+                justifyContent: 'flex-start',
+
               }}
               dropDownStyle={{ backgroundColor: '#fafafa' }}
               onChangeItem={item => this.setState({ picker: item.value })} />
@@ -127,6 +127,7 @@ export default class Login extends Component {
               value={email}
               onChangeText={(text) => { this.txtchgEmail(text) }}
               placeholder='אימייל' />
+            <Fontisto name="email" size={25} color="#900" />
           </View>
           <View style={styles.inputContainer}>
             <TextInput style={styles.inputs}
@@ -136,12 +137,20 @@ export default class Login extends Component {
               placeholder='סיסמא'
               secureTextEntry={true}
             />
+
           </View>
           <View>
             <TouchableHighlight
               style={[styles.MainButton, styles.loginButton]}
               onPress={this.btnLogin}>
               <Text style={styles.loginText}>היכנס</Text>
+            </TouchableHighlight>
+          </View>
+          <View>
+            <TouchableHighlight
+              style={[styles.MainButton, styles.loginButton]}
+              onPress={this.btnSignUp}>
+              <Text style={styles.loginText}>הירשם</Text>
             </TouchableHighlight>
           </View>
           <View>
@@ -166,13 +175,17 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     marginBottom: 20,
     flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: 20
   },
   inputs: {
     height: 45,
     marginRight: 16,
     borderBottomColor: '#FFFFFF',
     flex: 1,
-    textAlign: 'right'
+    textAlign: 'right',
+    fontFamily: 'Gill Sans',
+    fontSize: 20
   },
   buttonContainer: {
     height: 45,
@@ -189,7 +202,10 @@ const styles = StyleSheet.create({
   loginText: {
     color: 'white',
     fontWeight: 'bold',
-    fontSize: 15
+    fontSize: 30,
+    flex: 1,
+    textAlign: 'center'
+
   },
   inner: {
     width: '70%',
@@ -215,12 +231,12 @@ const styles = StyleSheet.create({
     color: '#ffffff'
   },
   MainButton: {
-    height: 30,
+    height: 50,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 30,
     width: 250,
     borderRadius: 30,
-  }
+  },
 });

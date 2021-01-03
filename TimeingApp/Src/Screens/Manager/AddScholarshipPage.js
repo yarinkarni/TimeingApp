@@ -4,7 +4,6 @@ import InputOutline from 'react-native-input-outline';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { observer, inject } from 'mobx-react'
 import { Api } from '../../Components/api';
-let url = 'http://site04.up2app.co.il/';
 @inject("TimeingStore")
 @observer
 export default class AddScholarshipPage extends Component {
@@ -14,10 +13,10 @@ export default class AddScholarshipPage extends Component {
       ScholarshipID: 0,
       IsActive: true,
       UserID: 1 || this.props.TimeingStore.getUser.UserID,
-      Conditions: 'eeee',
-      NameOfTheScholarship: 'eeee',
-      DueDate: 'eee',
-      Remarks: 'eee'
+      Conditions: 'ron',
+      NameOfTheScholarship: 'ron',
+      DueDate: 'ron',
+      Remarks: 'ron'
     };
   }
 
@@ -26,7 +25,8 @@ export default class AddScholarshipPage extends Component {
   txtchgDueDate = (DueDate) => this.setState({ DueDate });
   txtchgRemarks = (Remarks) => this.setState({ Remarks });
 
-  AddScholarship = async (ScholarshipID, IsActive, UserID, Conditions, NameOfTheScholarship, DueDate, Remarks) => {
+  AddScholarship = async () => {
+    const {ScholarshipID, IsActive, UserID, Conditions, NameOfTheScholarship, DueDate, Remarks}=this.state
     let obj2Send = {
       "ScholarshipID": ScholarshipID,
       "IsActive": IsActive,
@@ -36,14 +36,16 @@ export default class AddScholarshipPage extends Component {
       "DueDate": DueDate,
       "Remarks": Remarks
     }
+    //console.log("obj2Send",obj2Send)
     const res = await Api("addScholarship", "POST", obj2Send)
-    if(res){
+    //console.log(res, 'res')
+    if (res) {
       alert("המלגה נוספה בהצלחה :)")
       this.props.navigation.navigate('ManagementPage');
-    }else{
+    } else {
       alert("ההוספה נכשלה :(")
     }
-    console.log("res  - - - -  ?", JSON.stringify(res))
+    //console.log("res  - - - -  ?", JSON.stringify(res))
     return res;
   }
   render() {
