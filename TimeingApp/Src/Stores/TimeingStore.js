@@ -5,10 +5,11 @@ import PushNotification from "react-native-push-notification";
 class TimeingStore {
   //משתנים שנשמרים במכשיר
   @persist @observable userData = null
+  @persist @observable picker = 'סטודנט'
   @persist('object') @observable reportData = null;
 
   //משתנים לוקאלי של האפליקציה
-  @observable user = '';
+  //@observable user = '';
   @observable ScholarshipDetails = null;
   @observable news = [];
   @observable Token = '';
@@ -35,9 +36,13 @@ class TimeingStore {
   get getScholorships() {
     return this.scholorships
   }
+@computed
+get getPicker(){
+  return this.picker
+}
   @computed
   get getUser() {
-    return this.user
+    return this.userData
   }
   @computed
   get getScholarshipDetails() {
@@ -59,13 +64,17 @@ class TimeingStore {
   //לשנות את המשתנה
 
   @action
+  setPicker(data){
+    this.picker=data
+  }
+  @action
   setReportData(data) {
     //console.log("data - - - ->",data)
     this.reportData = data
   }
   @action
-  setUser(user) {
-    this.user = user
+  setUser(userData) {
+    this.userData = userData
   }
   @action
   setScholarshipByStudent(data) {

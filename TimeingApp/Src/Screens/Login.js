@@ -17,16 +17,22 @@ export default class Login extends Component {
       picker: 'סטודנט',
     }
   }
-
+  componentDidMount = () => {
+    const { TimeingStore } = this.props
+    if (TimeingStore.getUser) {
+      this.setState({ email:TimeingStore.getUser.email,password: TimeingStore.getUser.password,picker:TimeingStore.getPicker})
+    }
+  }
   txtchgEmail = (email) => this.setState({ email });
   txtchgPass = (password) => this.setState({ password });
   btnSignUp = () => this.props.navigation.navigate('Register');
   btnLogin = async () => {
     //consot
+    this.props.TimeingStore.setPicker(this.state.picker)
     if (this.state.picker === 'מנהל מלגה') {
       let s = await this.checkStudentDetilsForUser(this.state.email, this.state.password);
       if (s !== null) {
-        this.props.TimeingStore.setUser(s)
+        this.props.TimeingStore.setUser(s, 'מנהל מלגה')
         this.props.navigation.navigate('ManagementPage');
       }
       else
@@ -36,7 +42,7 @@ export default class Login extends Component {
       let s = await this.checkStudentDetilsForStudnet(this.state.email, this.state.password);
       if (s !== null) {
         this.props.TimeingStore.setUser(s)
-        console.log(this.props.TimeingStore.getUser,'this.props.TimeingStore.getUser')
+        console.log(this.props.TimeingStore.getUser, 'this.props.TimeingStore.getUser')
         this.props.navigation.navigate('menu');
       }
       else

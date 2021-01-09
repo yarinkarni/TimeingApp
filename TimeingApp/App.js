@@ -9,7 +9,7 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import Login from './Src/Screens/Login';
 import Register from './Src/Screens/Manager/Register';
 import Report from './Src/Screens/Student/Report';
-import Notifications from './Src/Screens/Student/Notifications';
+import Massages from './Src/Screens/Student/Massages';
 import ScholarshipList from './Src/Screens/ScholarshipList';
 import EditScholarship from './Src/Screens/Manager/EditScholarship';
 import StudentRegistration from './Src/Screens/Student/StudentRegistration';
@@ -68,9 +68,9 @@ function MyDrawer() {
         options={{ drawerLabel: 'Report' }}
       />
       <Drawer.Screen
-        name="Notifications"
-        component={Notifications}
-        options={{ drawerLabel: 'Notifications' }}
+        name="Massages"
+        component={Massages}
+        options={{ drawerLabel: 'Massages' }}
       />
       <Drawer.Screen
         name="ManagementPage"
@@ -120,7 +120,7 @@ const App2 = () => {
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="Register" component={Register} />
           <Stack.Screen name="Report" component={Report} />
-          <Stack.Screen name="Notifications" component={Notifications} />
+          <Stack.Screen name="Massages" component={Massages} />
           <Stack.Screen name="ScholarshipList" component={ScholarshipList} />
           <Stack.Screen name="EditScholarship" component={EditScholarship} />
           <Stack.Screen name="StudentRegistration" component={StudentRegistration} />

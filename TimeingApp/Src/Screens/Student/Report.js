@@ -6,7 +6,7 @@ import Icon from 'react-native-vector-icons/Feather';
 import { observer, inject } from 'mobx-react'
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import moment from 'moment';
-import { DateTime } from 'react-datetime'
+//import { DateTime } from 'react-datetime'
 import { Api } from '../../Components/api';
 
 
@@ -102,11 +102,10 @@ export default class Report extends Component {
   }
   AddReport = async () => {
     //console.log('addReport')
-    const { StudentID, ScholarshipID, StartTime, StartLat, StartLng, EndLat, EndLng, EndTime, Approval } = this.state
+    const { StudentID, ScholarshipID, StartLat, StartLng, EndLat, EndLng, EndTime, Approval } = this.state
     let obj2Send = {
       "StudentID": StudentID,
       "ScholarshipID": ScholarshipID,
-      "StartTime": StartTime,
       "StartLat": StartLat,
       "StartLng": StartLng,
       "EndLat": EndLat,
@@ -144,18 +143,18 @@ export default class Report extends Component {
     const { EndTime, StartTime, scholarships, scholarshipByStudent, selectedScholorships, curTime } = this.state
     const { TimeingStore, navigation } = this.props
     const getActiveScholarships = this.filterScholarshipsByStudentID(scholarships)
-    console.log(getActiveScholarships, 'getActiveScholarships')
-    console.log(this.state.StudentID, 'StudentID')
-    console.log(this.state.ScholarshipID, 'ScholarshipID')
-    console.log(this.state.StartTime, 'StartTime')
-    console.log(this.state.StartLat, 'StartLat')
-    console.log(this.state.StartLng, 'StartLng')
-    console.log(this.state.EndLat, 'EndLat')
-    console.log(this.state.EndLng, 'EndLng')
-    console.log(this.state.EndTime.toString(), 'EndTime')
-    console.log(this.state.Approval, 'Approval')
-    //console.log(DateTime.Now.ToString(), 'dddd')
-    console.log(new Date().toJSON(), 'date')
+    // console.log(getActiveScholarships, 'getActiveScholarships')
+    // console.log(this.state.StudentID, 'StudentID')
+    // console.log(this.state.ScholarshipID, 'ScholarshipID')
+    // console.log(this.state.StartTime, 'StartTime')
+    // console.log(this.state.StartLat, 'StartLat')
+    // console.log(this.state.StartLng, 'StartLng')
+    // console.log(this.state.EndLat, 'EndLat')
+    // console.log(this.state.EndLng, 'EndLng')
+    // console.log(this.state.EndTime.toString(), 'EndTime')
+    // console.log(this.state.Approval, 'Approval')
+    // //console.log(DateTime.Now.ToString(), 'dddd')
+    // console.log(new Date().toJSON(), 'date')
     return (
       <View style={[s.container]}>
         <FontAwesome

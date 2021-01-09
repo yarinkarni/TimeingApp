@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { View, StyleSheet } from 'react-native'
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
-export default class ViewUpdates extends Component {
+export default class Massages extends Component {
   render() {
     return (
       <View style={s.container}>
