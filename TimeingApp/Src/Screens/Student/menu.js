@@ -18,7 +18,7 @@ export default class menu extends Component {
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.MainButton, styles.loginButton]}
-          onPress={() => this.props.navigation.navigate('Notifications')}>
+          onPress={() => this.props.navigation.navigate('MassagesStudent')}>
           <Text
             style={styles.loginText}
           >

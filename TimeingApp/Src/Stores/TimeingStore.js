@@ -4,7 +4,7 @@ import PushNotification from "react-native-push-notification";
 //החנות שלי לשמירת נתונים
 class TimeingStore {
   //משתנים שנשמרים במכשיר
-  @persist @observable userData = null
+  @persist('object') @observable userData = null
   @persist @observable picker = 'סטודנט'
   @persist('object') @observable reportData = null;
 
@@ -74,6 +74,7 @@ get getPicker(){
   }
   @action
   setUser(userData) {
+    //console.log("data - - - ->",userData)
     this.userData = userData
   }
   @action

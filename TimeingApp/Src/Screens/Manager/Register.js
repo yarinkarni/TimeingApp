@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import { ScrollView, Image, View, Text, StyleSheet, TouchableHighlight, ImageBackground } from 'react-native'
 import InputOutline from 'react-native-input-outline';
-let url = 'http://site04.up2app.co.il/';
+import { Api } from '../../Components/api';
+
 
 export default class Register extends Component {
   constructor(props) {
@@ -38,10 +39,7 @@ export default class Register extends Component {
     else
       this.props.navigation.navigate('Login', { user: s });
   }
-
-
   AddUser = async (FirstName, LastName, Email, Password, RegistartionData, Telephone) => {
-    let returnedObj = null;
     let obj2Send = {
       "UserID": 0,
       "FirstName": FirstName,
@@ -51,30 +49,8 @@ export default class Register extends Component {
       "RegistartionData": RegistartionData,
       "Telephone": Telephone
     }
-    //console.log(obj2Send);
-    await fetch(url + "addUser",
-      {
-        method: 'POST', // 'GET', 'POST', 'PUT', 'DELETE', etc.,
-        body: JSON.stringify(obj2Send),
-        headers: new Headers({
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }),
-      }) // Call the fetch function passing the url of the API as a parameter
-      .then((resp) => resp.json()) // Transform the data into json
-      .then(function (data) {
-        if (!data.toString().includes("could not insert")) {
-          returnedObj = data;
-        }
-        else {
-          returnedObj = null;
-        }
-      })
-      .catch(function (err) {
-        alert(err);
-      });
-
-    return returnedObj;
+    const res = await Api("addUser", "POST", obj2Send)
+    return res;
   }
   render() {
     return (

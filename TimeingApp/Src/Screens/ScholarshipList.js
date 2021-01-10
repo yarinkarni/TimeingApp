@@ -2,26 +2,26 @@ import React, { Component } from 'react'
 import { View, StyleSheet, ScrollView, Button, Text, YellowBox } from 'react-native'
 import { Card, CardTitle, CardContent, CardAction, CardButton, CardImage } from 'react-native-cards';
 import { SearchBar } from 'react-native-elements';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import Modal from 'react-native-modal';
-import AsyncStorage from '@react-native-community/async-storage';
-import { create } from 'mobx-persist';
-import TimeingStore from '../Stores/TimeingStore';
+// import AsyncStorage from '@react-native-community/async-storage';
+// import { create } from 'mobx-persist';
+// import TimeingStore from '../Stores/TimeingStore';
 import { Api } from '../Components/api';
 YellowBox.ignoreWarnings(['Remote debugger']);
 
-const hydrate = create({
-  storage: AsyncStorage,
-});
-//הפונקציה מתרחשת בעליה הראשונה לאפליקציה 
-//בעליה לאפקליקציה הפונקציה לוקחת את המידע שנשמר לוקאלית על המכשיר ושומרת בחנות 
-//בכדי שהמשתמש לא יצטרך להיכנס שוב ועוד נתונים שאצטרך ממנו
-//מספיק פרמטר אחד בכדי להביא את כל החנות
-const GetHydrate = () => {
-  hydrate('userData', TimeingStore).then(() =>
-    console.log('Get data from store'),
-  );
-}
+// const hydrate = create({
+//   storage: AsyncStorage,
+// });
+// //הפונקציה מתרחשת בעליה הראשונה לאפליקציה 
+// //בעליה לאפקליקציה הפונקציה לוקחת את המידע שנשמר לוקאלית על המכשיר ושומרת בחנות 
+// //בכדי שהמשתמש לא יצטרך להיכנס שוב ועוד נתונים שאצטרך ממנו
+// //מספיק פרמטר אחד בכדי להביא את כל החנות
+// const GetHydrate = () => {
+//   hydrate('userData', TimeingStore).then(() =>
+//     console.log('Get data from store'),
+//   );
+// }
 import { observer, inject } from 'mobx-react'
 @inject("TimeingStore")
 @observer
@@ -37,6 +37,7 @@ export default class ScholarshipList extends Component {
       StudentID: this.props.TimeingStore.getUser.StudentID,
       Date: new Date().toISOString().slice(0, 19).replace(' ', 'T'),
       Approval: false,
+      listScholarshipsAfterSearch:[],
 
     }
   }
@@ -45,22 +46,27 @@ export default class ScholarshipList extends Component {
     this.setState({ isModalVisible: !this.state.isModalVisible, index });
   };
   updateSearch = (search) => {
-    this.setState({ search });
+    if(search.length >2){
+      let listScholarshipsAfterSearch = this.state.listScholarships.filter(l=>l.NameOfTheScholarship.includes(search))
+      this.setState({ listScholarshipsAfterSearch,search });
+    }else{
+      this.setState({ listScholarshipsAfterSearch:this.state.listScholarships,search });
+
+    }
+  
   };
   componentDidMount = async () => {
     //שמתי await בפונקציה בכדי שהסטייט יתאכלס עם מידע תקין
     //עשיתי api כללי שאני קורא לו פה 
     const listScholarships = await Api("getAllScholarships", "GET")
-    this.setState({ listScholarships })
+    this.setState({ listScholarships ,listScholarshipsAfterSearch:listScholarships})
     //מכניס את כל המלגות לחנות
     this.props.TimeingStore.setScholarship(listScholarships)
-    //קורא לפונקציה
-    await GetHydrate()
+    // //קורא לפונקציה
+    // await GetHydrate()
   }
   AddRequest = async () => {
-    console.log('addRequests')
     const { ScholarshipIDState, StudentID, Date, Approval } = this.state
-    console.log(ScholarshipIDState, StudentID, Date, Approval, 'lala')
     let obj2Send = {
       "ScholarshipID": ScholarshipIDState,
       "StudentID": StudentID,
@@ -84,20 +90,20 @@ export default class ScholarshipList extends Component {
     //console.log(new Date().toISOString().slice(0, 19).replace(' ', 'T'),'new Date()')
     //מציג את כל המלגות עם מודל על כל מלגה עם יותר פרטים
     //לכל מלגה יש כפתור של הגשת מועמדות לאותה מלגה
-    const { search, listScholarships, isModalVisible, index } = this.state;
+    const { search, listScholarships, isModalVisible, index,listScholarshipsAfterSearch } = this.state;
     const { navigation, TimeingStore } = this.props;
     var cards = [];
-    for (let index = 0; index < listScholarships.length; index++) {
+    for (let index = 0; index < listScholarshipsAfterSearch.length; index++) {
       cards.push(
-        <Card key={listScholarships[index]?.ScholarshipID}>
+        <Card key={listScholarshipsAfterSearch[index]?.ScholarshipID}>
           <CardImage
             source={{ uri: 'http://bit.ly/2GfzooV' }}
-            title={listScholarships[index]?.NameOfTheScholarship}
+            title={listScholarshipsAfterSearch[index]?.NameOfTheScholarship}
           />
           <CardTitle
-            subtitle={listScholarships[index]?.Conditions}
+            subtitle={listScholarshipsAfterSearch[index]?.Conditions}
           />
-          <CardContent text={listScholarships[index]?.DueDate} />
+          <CardContent text={listScholarshipsAfterSearch[index]?.DueDate} />
           <CardAction
             separator={true}
             inColumn={false}>
@@ -122,8 +128,8 @@ export default class ScholarshipList extends Component {
         <ScrollView>
           {cards}
         </ScrollView>
-        <FontAwesome
-          name="user-plus"
+        <Ionicons
+          name="arrow-back-circle"
           size={50}
           style={styles.fab}
           onPress={() => navigation.navigate('menu')}
@@ -138,16 +144,16 @@ export default class ScholarshipList extends Component {
                     style={styles.card}>
                     <CardImage
                       source={{ uri: 'http://bit.ly/2GfzooV' }}
-                      title={"שם ה​מ​​לגה : \n" + listScholarships[index]?.NameOfTheScholarship}
+                      title={"שם ה​מ​​לגה : \n" + listScholarshipsAfterSearch[index]?.NameOfTheScholarship}
                     />
                     <CardTitle
                       style={styles.loginText}
-                      subtitle={"תנאים : \n" + listScholarships[index]?.Conditions}
+                      subtitle={"תנאים : \n" + listScholarshipsAfterSearch[index]?.Conditions}
                     />
                     <CardContent
-                      text={"​מועד הגשה : \n" + listScholarships[index]?.DueDate} />
+                      text={"​מועד הגשה : \n" + listScholarshipsAfterSearch[index]?.DueDate} />
                     <CardContent
-                      text={"הערות : \n" + listScholarships[index]?.Remarks} />
+                      text={"הערות : \n" + listScholarshipsAfterSearch[index]?.Remarks} />
                     <CardAction
                       separator={true}
                       inColumn={false}>
@@ -155,14 +161,13 @@ export default class ScholarshipList extends Component {
                         onPress={() => {
                           alert("נשלחה בקשה להצטרפות למלגה !")
                           this.toggleModal();
-                          const temp = listScholarships[index].ScholarshipID;
+                          const temp = listScholarshipsAfterSearch[index].ScholarshipID;
                           console.log(temp,'temp')
 
                           this.setState({ ScholarshipIDState: temp }),()=>
 
                          
-                          TimeingStore.setScholarshipDetails(listScholarships[index])
-                          console.log(listScholarships[index].ScholarshipID, 'listScholarships[index].ScholarshipID')
+                          TimeingStore.setScholarshipDetails(listScholarshipsAfterSearch[index])
                           navigation.navigate('menu',);
                           this.AddRequest()
                         }}

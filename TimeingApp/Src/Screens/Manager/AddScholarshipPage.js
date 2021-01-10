@@ -36,16 +36,13 @@ export default class AddScholarshipPage extends Component {
       "DueDate": DueDate,
       "Remarks": Remarks
     }
-    //console.log("obj2Send",obj2Send)
     const res = await Api("addScholarship", "POST", obj2Send)
-    //console.log(res, 'res')
     if (res) {
       alert("המלגה נוספה בהצלחה :)")
       this.props.navigation.navigate('ManagementPage');
     } else {
       alert("ההוספה נכשלה :(")
     }
-    //console.log("res  - - - -  ?", JSON.stringify(res))
     return res;
   }
   render() {

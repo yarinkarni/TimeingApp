@@ -138,6 +138,7 @@ android {
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
+        missingDimensionStrategy 'react-native-camera', 'general'
     }
     splits {
         abi {
@@ -196,7 +197,7 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation project(':react-native-community-geolocation')
     implementation 'androidx.multidex:multidex:2.0.1'
-
+    implementation project(':react-native-camera')
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
 

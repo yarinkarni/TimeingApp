@@ -1,16 +1,15 @@
 import React, { Component } from 'react'
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, InteractionManager } from 'react-native'
 import Geolocation from '@react-native-community/geolocation';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Icon from 'react-native-vector-icons/Feather';
 import { observer, inject } from 'mobx-react'
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import moment from 'moment';
 //import { DateTime } from 'react-datetime'
 import { Api } from '../../Components/api';
 
 
-let url = 'http://site04.up2app.co.il/';
 @inject("TimeingStore")
 @observer
 export default class Report extends Component {
@@ -39,33 +38,17 @@ export default class Report extends Component {
     const { TimeingStore } = this.props
     await this.getScholorshipsByStudent()
     TimeingStore.getReportData && this.setState({ ...TimeingStore.getReportData })
-    console.log(this.state.scholarships, 'tss')
+    //console.log(this.state.scholarships, 'tss')
   }
 
   getScholorshipsByStudent = async () => {
-    //console.log(" this.props.TimeingStore.getUser.StudentID", this.props.TimeingStore.getUser.StudentID)
-    await fetch(url + "getRequestsByStudentID/" + this.props.TimeingStore.getUser.StudentID,
-      {
-        method: 'GET',
-        headers: new Headers({
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }),
-      })
-      .then((resp) => resp.json())
-      .then((data) => {
-        if (data.length) {
-          //console.log("data", data)
-          this.props.TimeingStore.setScholarshipByStudent(data)
-        }
-        else {
-          console.log("wrong ID!");
-        }
-        this.setState({ scholarshipByStudent: data.length ? data : [] });
-      })
-      .catch(function (err) {
-        console.log(err);
-      });
+    const { TimeingStore } = this.props
+    const res = await Api("getRequestsByStudentID/" + TimeingStore.getUser.StudentID, "GET")
+    if (res) {
+      this.props.TimeingStore.setScholarshipByStudent(res)
+    }
+    this.setState({ scholarshipByStudent: res.length ? res : [] });
+    return res;
   }
 
   btnStart = () => {
@@ -80,51 +63,53 @@ export default class Report extends Component {
       this.setState({
         StartLat: info.coords.latitude,
         StartLng: info.coords.longitude,
-        StartTime: new Date().toJSON()
-        //new Date().toISOString().slice(0, 19).replace(' ', 'T')
+        StartTime:
+          // new Date().toJSON()
+          new Date().toISOString().slice(0, 19).replace(' ', 'T')
       })
     })
   }
-
   btnEnd = () => {
     Geolocation.getCurrentPosition((info) => {
+      console.log(info.coords.latitude, 'dddd');
+      console.log(info.coords.longitude, 'dddddddd');
+      this.props.TimeingStore.setReportData(null)
       this.setState({
         EndLat: info.coords.latitude,
-        EndLng: info.coords.longitude
+        EndLng: info.coords.longitude,
+        EndTime: new Date().toISOString().slice(0, 19).replace(' ', 'T')
+        , StartTime: null
       })
+      this.AddReport()
     })
-    this.setState({
-      EndTime: new Date().toISOString().slice(0, 19).replace(' ', 'T')
-      , StartTime: null
-    });
-    this.props.TimeingStore.setReportData(null)
-    this.AddReport()
+    //this.props.TimeingStore.setReportData(null)
   }
   AddReport = async () => {
-    //console.log('addReport')
     const { StudentID, ScholarshipID, StartLat, StartLng, EndLat, EndLng, EndTime, Approval } = this.state
-    let obj2Send = {
-      "StudentID": StudentID,
-      "ScholarshipID": ScholarshipID,
-      "StartLat": StartLat,
-      "StartLng": StartLng,
-      "EndLat": EndLat,
-      "EndLng": EndLng,
-      "EndTime": EndTime,
-      "Approval": Approval
-    }
-    console.log("obj2Send", obj2Send)
-    const res = await Api("addReport", "POST", obj2Send)
-    console.log(res, 'res')
-    if (res) {
+    InteractionManager.runAfterInteractions(async () => {
+      let obj2Send = {
+        "StudentID": StudentID,
+        "ScholarshipID": ScholarshipID,
+        "StartLat": StartLat,
+        "StartLng": StartLng,
+        "EndLat": EndLat,
+        "EndLng": EndLng,
+        "EndTime": EndTime,
+        "Approval": Approval
+      }
+      console.log("obj2Send", obj2Send)
+
+      const res = await Api("addReport", "POST", obj2Send)
       console.log(res, 'res')
-      alert("הדווח נוסף בהצלחה :)")
-      this.props.navigation.navigate('menu');
-    } else {
-      alert("ההוספה נכשלה :(")
-    }
-    //console.log("res  - - - -  ?", JSON.stringify(res))
-    return res;
+      if (res) {
+        console.log(res, 'res')
+        alert("הדווח נוסף בהצלחה :)")
+        this.props.navigation.navigate('menu');
+      } else {
+        alert("ההוספה נכשלה :(")
+      }
+      return res;
+    })
   }
   filterScholarshipsByStudentID = (scholarships) => {
     const { scholarshipByStudent } = this.state
@@ -143,25 +128,14 @@ export default class Report extends Component {
     const { EndTime, StartTime, scholarships, scholarshipByStudent, selectedScholorships, curTime } = this.state
     const { TimeingStore, navigation } = this.props
     const getActiveScholarships = this.filterScholarshipsByStudentID(scholarships)
-    // console.log(getActiveScholarships, 'getActiveScholarships')
-    // console.log(this.state.StudentID, 'StudentID')
-    // console.log(this.state.ScholarshipID, 'ScholarshipID')
-    // console.log(this.state.StartTime, 'StartTime')
-    // console.log(this.state.StartLat, 'StartLat')
-    // console.log(this.state.StartLng, 'StartLng')
-    // console.log(this.state.EndLat, 'EndLat')
-    // console.log(this.state.EndLng, 'EndLng')
-    // console.log(this.state.EndTime.toString(), 'EndTime')
-    // console.log(this.state.Approval, 'Approval')
-    // //console.log(DateTime.Now.ToString(), 'dddd')
-    // console.log(new Date().toJSON(), 'date')
+    //console.log(scholarshipByStudent, 'scholarshipByStudent')
     return (
       <View style={[s.container]}>
-        <FontAwesome
-          name="user-plus"
+        <Ionicons
+          name="arrow-back-circle"
           size={50}
           style={s.fab}
-          onPress={() => this.props.navigation.navigate('menu')}
+          onPress={() => navigation.navigate('menu')}
         />
         <View style={s.Time}>
           <Text>{curTime}</Text>
@@ -191,9 +165,9 @@ export default class Report extends Component {
                 onPress={StartTime ? this.btnEnd : this.btnStart}>
                 <Text style={[s.stdTxt]}>{StartTime ? 'יציאה' : 'כניסה'}</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={s.stdBtn} onPress={() => navigation.navigate('WatchingHours')}>
+              {/* <TouchableOpacity style={s.stdBtn} onPress={() => navigation.navigate('WatchingHours')}>
                 <Text style={s.stdTxt}>צפייה בשעות </Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
             <View style={s.Time}>
               <Text style={s.stdTxt}>
@@ -201,9 +175,6 @@ export default class Report extends Component {
               </Text>
               <Text style={s.stdTxt} >
                 שעת יציאה :  {EndTime}
-              </Text>
-              <Text>
-                {moment().format('YYYY-MM-DDTHH:mm:ss')}
               </Text>
             </View>
           </View>

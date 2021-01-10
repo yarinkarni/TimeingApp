@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { View, Text, StyleSheet, Dimensions } from 'react-native'
 import { PieChart } from "react-native-chart-kit";
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Api } from '../../Components/api';
 
 export default class WatchingHours extends Component {
@@ -33,8 +33,8 @@ export default class WatchingHours extends Component {
   render() {
     return (
       <View style={[s.container,]}>
-        <FontAwesome
-          name="user-plus"
+        <Ionicons
+          name="arrow-back-circle"
           size={50}
           style={s.fab}
           onPress={() => this.props.navigation.navigate('menu')}

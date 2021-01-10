@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, View, Button, StyleSheet, Alert, TouchableHighlight, ScrollView } from 'react-native'
+import { TextInput, Text, View, Button, StyleSheet, Alert, TouchableHighlight, ScrollView } from 'react-native'
 import { Api } from '../../Components/api'
 import { observer, inject } from 'mobx-react'
 import Modal from 'react-native-modal';
@@ -16,13 +16,32 @@ export default class ApprovalOfScholarships extends Component {
     this.state = {
       getStudentByScholarshipIDFalse: [],
       getStudentByScholarshipIDTrueOrFalse: [],
-      getStudentHours:[],
+      getStudentHours: [],
       isModalVisible1: false,
       isModalVisible2: false,
       isModalVisible3: false,
+      title: '',
+      content: '',
     }
   }
-
+  sendPush = async () => {
+    console.log("ASFASAFS")
+    const { content, title } = this.state;
+    const { params } = this.props.route
+    try {
+      const data = {
+        ScholarshipID:1|| params.ScholarshipDetails.ScholarshipID,
+        DateAndTime: new Date().toISOString().slice(0, 19).replace(' ', 'T'),
+        Title: title,
+        Text: content
+      }
+      console.log(data, 'data')
+      let res = await Api("addMessages", "POST", data)
+      console.log(res, 'res')
+    } catch (error) {
+      console.log("GetStudentByScholarshipIDFalse -- ERROR - ", error)
+    }
+  }
   componentDidMount = async () => {
     const { params } = this.props.route
     let getStudentByScholarshipIDFalse = []
@@ -46,18 +65,19 @@ export default class ApprovalOfScholarships extends Component {
       console.log("GetStudentByScholarshipIDFalse -- ERROR - ", error)
     }
     //  }
-    getStudentByScholarshipIDTrue.map(item =>{
-    this.setState({
-      getStudentByScholarshipIDTrueOrFalse: [...this.state.getStudentByScholarshipIDFalse, item]
-    })})
-    console.log(this.state.getStudentByScholarshipIDTrueOrFalse, 'ssss')
+    getStudentByScholarshipIDTrue.map(item => {
+      this.setState({
+        getStudentByScholarshipIDTrueOrFalse: [...this.state.getStudentByScholarshipIDFalse, item]
+      })
+    })
+    //console.log(this.state.getStudentByScholarshipIDTrueOrFalse, 'ssss')
     // this.setState({ listScholarships })
     //this.props.route.params.ScholarshipDetails.ScholarshipID,
-    let getStudentHours=[]
+    let getStudentHours = []
     try {
-       getStudentHours = await Api("GetRequestsByStudentIDAndScholarshipID/1/1"
-      //  +
-      //   (1 || params.ScholarshipDetails.ScholarshipID) + "/1"
+      getStudentHours = await Api("GetRequestsByStudentIDAndScholarshipID/1/1"
+        //  +
+        //   (1 || params.ScholarshipDetails.ScholarshipID) + "/1"
         , "GET")
     } catch (error) {
       console.log("GetStudentByScholarshipIDFalse -- ERROR - ", error)
@@ -65,7 +85,7 @@ export default class ApprovalOfScholarships extends Component {
     this.setState({
       getStudentHours
     })
-    console.log(this.state.getStudentHours,'getStudentHours')
+    //console.log(this.state.getStudentHours, 'getStudentHours')
   }
   toggleModal1 = (index) => {
     this.setState({ isModalVisible1: !this.state.isModalVisible1, index });
@@ -77,7 +97,7 @@ export default class ApprovalOfScholarships extends Component {
     this.setState({ isModalVisible3: !this.state.isModalVisible3, index });
   };
   btnApprovelStudent = (StudentID) => {
-    console.log(StudentID, 'StudentID')
+    // console.log(StudentID, 'StudentID')
 
   }
   AllStudents = () => {
@@ -241,8 +261,8 @@ export default class ApprovalOfScholarships extends Component {
   render() {
     const { route } = this.props
     const { isModalVisible1, isModalVisible2, isModalVisible3 } = this.state
-    console.log("props - ", this.props)
-    console.log(this.state.getStudentByScholarshipIDFalse, 'getStudentByScholarshipIDFalse')
+
+
     return (
       <View style={{ flex: 1, backgroundColor: 'rgba(20,40,50,0.2)', alignItems: 'center' }}>
         <View style={{ marginTop: 20, height: 60, backgroundColor: 'rgba(100,200,200,0.6)', width: '100%', alignItems: 'center' }}>
@@ -261,6 +281,29 @@ export default class ApprovalOfScholarships extends Component {
             onPress={() => this.toggleModal3()}>
             <Text style={styles.loginText}>צפייה בנתוני סטודנטים</Text>
           </TouchableHighlight>
+          <View style={[styles.buttonContainer, styles.loginButton]}>
+            <Text>
+              כתוב משהו לסטודנטים יא גבר על :)
+          </Text>
+            <TextInput
+              style={{ width: '100%', height: 10, borderWidth: 1 }}
+              value={this.state.title}
+              onChangeText={title => this.setState({ title })}
+              multiline={true}
+              underlineColorAndroid='transparent'
+            />
+            <TextInput
+              style={styles.input}
+              value={this.state.content}
+              onChangeText={content => this.setState({ content })}
+              multiline={true}
+              underlineColorAndroid='transparent'
+            />
+            <TouchableHighlight
+              onPress={() => this.sendPush()}>
+              <Text style={styles.loginText}>שלח הודעה</Text>
+            </TouchableHighlight>
+          </View>
         </View>
 
         <View style={styles.container}>
@@ -274,12 +317,12 @@ export default class ApprovalOfScholarships extends Component {
             </View>
             <View style={{ backgroundColor: 'white', width: '100%', height: '85%', alignItems: 'center' }}>
               {this.ApprovalOfReports()}
-              
+
             </View>
             <Button
               title="סגור"
-              onPress={() => this.toggleModal1()} 
-              />
+              onPress={() => this.toggleModal1()}
+            />
           </Modal>
         </View>
 
@@ -304,7 +347,7 @@ export default class ApprovalOfScholarships extends Component {
               <Text>צפייה בנתוני סטודנטים</Text>
             </View>
             <View style={{ backgroundColor: 'white', width: '100%', height: '85%', alignItems: 'center' }}>
-            {this.btnApprovalOfScholarships()}
+              {this.btnApprovalOfScholarships()}
             </View>
             <Button
               title="סגור"
@@ -327,9 +370,9 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flex: 0.2,
-    top: 200,
+    top: 20,
     height: 45,
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
@@ -360,6 +403,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     margin: 16,
     left: 0,
+  },
+  input: {
+    flex: 1,
+    //height:100,
+    width: "100%",
+    borderColor: 'red',
+    borderWidth: 1,
   },
 });
 

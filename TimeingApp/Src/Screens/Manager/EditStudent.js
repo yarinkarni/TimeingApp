@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { View, StyleSheet, Text, ScrollView } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-let url = 'http://site04.up2app.co.il/';
+import { Api } from '../../Components/api';
 import { observer, inject } from 'mobx-react'
 @inject("TimeingStore")
 @observer
@@ -16,108 +16,31 @@ export default class EditStudent extends Component {
     }
   }
   componentDidMount() {
-    console.log(this.props.route.params.ScholarshipDetails.ScholarshipID,"this.props.ScholarshipDetails")
     const Scholarships = this.props.TimeingStore.getScholorships
-    console.log(Scholarships.map(e=>e.ScholarshipID),"Scholarships edit stu")
-    //this.setState({})
-    //this.GetStudentByScholarshipID();
-    //this.GetStudents();
   }
-  GetStudentByScholarshipID() {
-    fetch('http://site04.up2app.co.il/getRequestsByScholarshipID/1',
-      // url + 'getRequestsByScholarshipID/1',//לא לשכוחחחחח
-      {
-        method: 'GET',
-        headers: new Headers({
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }),
-      })
-      .then((resp) => {
-        if (resp.status === 200)
-          return resp.json();
-        else
-          console.log("could not get all the students!");
-      }
-      )
-      .then((data) => {
-        if (data) {
-          this.setState({ studentsRequests: data });
-          //console.log(data[1].StudentID + ' not')
-          //console.log(this.state.studentsRequests[1].StudentID + '   yes')
-        }
-        else
-          console.log('didnt inserted!');
+  GetStudentByScholarshipID = async () => {
+    const { TimeingStore } = this.props
+    const res = await Api("getRequestsByScholarshipID/" + TimeingStore.getUser.StudentID, "GET")
+  }
+  GetStudents = async () => {
+    const { TimeingStore } = this.props
+    const { studentsRequests, students } = this.state
+    for (let index = 0; index < studentsRequests.length; index++) {
+      const res = await Api("getStudentByID/" + studentsRequests[index].StudentID, "GET")
+      if (res)
+        this.setState({ students: [...students, data] });
 
-      })
-      .catch(function (err) {
-        alert(err);
-      });
-  }
-  GetStudents() {
-    //console.log(this.state.studentsRequests.length + 'this.state.studentsRequests.length')
-    for (let index = 0; index < this.state.studentsRequests.length; index++) {
-      //console.log(this.state.studentsRequests[index].StudentID + '.state.studentsRequests[index].StudentID')
-      fetch(url + 'getStudentByID/' + this.state.studentsRequests[index].StudentID,
-        {
-          method: 'GET',
-          headers: new Headers({
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          }),
-        })
-        .then((resp) => {
-          if (resp.status === 200) {
-            return resp.json();
-          }
-          else
-            return "could not get all the students!";
-        }
-        ) 
-        .then((data) => {
-          if (data) {
-            this.setState({ students: [...this.state.students, data] });
-            console.log(this.state.students.StudentID+'feth')
-          }
-          else {
-            console.log('didnt inserted!');
-          }
-        })
-        .catch(function (err) {
-          alert(err);
-        });
     }
   }
-  btnDeleteStudent = (studentId) => {
-    fetch(url + `DeleteStudent/` + studentId,
-      {
-        method: 'DELETE', // 'GET', 'POST', 'PUT', 'DELETE', etc.
-        headers: new Headers({
-          // 'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }),
-      }) // Call the fetch function passing the url of the API as a parameter
-      .then((resp) => {
-        console.log(resp);
-        if (resp.status === 200) {
-          //console.log(200);
-          let newStudents = this.state.students.filter(stu => stu.ID !== studentId);
-          //console.log(newStudents);
-          this.setState({
-            students: newStudents
-          });
-        }
-        else if (resp.status === 400) {
-          console.log("BadRequest");
-        }
-        else {
-          console.log("NotFound");
-        }
-      }
-      ) // Transform the data into json
-      .catch(function (err) {
-        alert(err);
+  btnDeleteStudent = async (studentId) => {
+    const { TimeingStore } = this.props
+    const res = await Api("DeleteStudent/" + studentId, "DELETE")
+    if (res) {
+      let newStudents = this.state.students.filter(stu => stu.ID !== studentId);
+      this.setState({
+        students: newStudents
       });
+    }
   }
   btnEditStudent = (student) => {
     this.props.history.push({

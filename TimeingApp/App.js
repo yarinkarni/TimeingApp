@@ -2,14 +2,13 @@ import React from 'react';
 //import { createAppContainer } from 'react-navigation'
 //import AppNav from './Src/Routes/AppNav'
 import { Provider } from 'mobx-react'
-import TimeingStore from './Src/Stores/TimeingStore'
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import Login from './Src/Screens/Login';
 import Register from './Src/Screens/Manager/Register';
 import Report from './Src/Screens/Student/Report';
-import Massages from './Src/Screens/Student/Massages';
+import MassagesStudent from './Src/Screens/Student/MassagesStudent';
 import ScholarshipList from './Src/Screens/ScholarshipList';
 import EditScholarship from './Src/Screens/Manager/EditScholarship';
 import StudentRegistration from './Src/Screens/Student/StudentRegistration';
@@ -18,8 +17,9 @@ import WatchingHours from './Src/Screens/Student/WatchingHours';
 import AddScholarshipPage from './Src/Screens/Manager/AddScholarshipPage';
 import EditStudent from './Src/Screens/Manager/EditStudent';
 import menu from './Src/Screens/Student/menu';
-import ApprovalOfReports from './Src/Screens/Manager/ApprovalOfReports';
 import ApprovalOfScholarships from './Src/Screens/Manager/ApprovalOfScholarships';
+import TimeingStore from './Src/Stores/TimeingStore';
+
 class App extends React.Component {
   render() {
     return (
@@ -68,9 +68,9 @@ function MyDrawer() {
         options={{ drawerLabel: 'Report' }}
       />
       <Drawer.Screen
-        name="Massages"
-        component={Massages}
-        options={{ drawerLabel: 'Massages' }}
+        name="MassagesStudent"
+        component={MassagesStudent}
+        options={{ drawerLabel: 'MassagesStudent' }}
       />
       <Drawer.Screen
         name="ManagementPage"
@@ -98,11 +98,6 @@ function MyDrawer() {
         options={{ drawerLabel: 'menu' }}
       />
       <Drawer.Screen
-        name="ApprovalOfReports"
-        component={ApprovalOfReports}
-        options={{ drawerLabel: 'ApprovalOfReports' }}
-      />
-      <Drawer.Screen
         name="ApprovalOfScholarships"
         component={ApprovalOfScholarships}
         options={{ drawerLabel: 'ApprovalOfScholarships' }}
@@ -120,7 +115,7 @@ const App2 = () => {
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="Register" component={Register} />
           <Stack.Screen name="Report" component={Report} />
-          <Stack.Screen name="Massages" component={Massages} />
+          <Stack.Screen name="MassagesStudent" component={MassagesStudent} />
           <Stack.Screen name="ScholarshipList" component={ScholarshipList} />
           <Stack.Screen name="EditScholarship" component={EditScholarship} />
           <Stack.Screen name="StudentRegistration" component={StudentRegistration} />
@@ -129,7 +124,6 @@ const App2 = () => {
           <Stack.Screen name="AddScholarshipPage" component={AddScholarshipPage} />
           <Stack.Screen name="EditStudent" component={EditStudent} />
           <Stack.Screen name="menu" component={menu} />
-          <Stack.Screen name="ApprovalOfReports" component={ApprovalOfReports} />
           <Stack.Screen name="ApprovalOfScholarships" component={ApprovalOfScholarships} />
         </Stack.Navigator>
       </MyDrawer>

@@ -2,7 +2,10 @@ import React, { Component } from 'react'
 import { ScrollView, Image, TextInput, View, Text, StyleSheet, TouchableHighlight, ImageBackground } from 'react-native';
 import DatePicker from 'react-native-datepicker';
 import PushNotification from "react-native-push-notification";
-let url = 'http://site04.up2app.co.il/';
+import { Api } from '../../Components/api';
+import { observer, inject } from 'mobx-react'
+@inject("TimeingStore")
+@observer
 export default class StudentRegistration extends Component {
   constructor(props) {
     super(props);
@@ -59,7 +62,6 @@ export default class StudentRegistration extends Component {
       this.props.navigation.navigate('Login', { user: s });
   }
   AddStudent = async (FirstName, LastName, Email, Password, Telephone, BirthDate, Sex, Address, City, Token) => {
-    let returnedObj = null;
     let obj2Send = {
       "StudentID": 0,
       "FirstName": FirstName,
@@ -73,29 +75,9 @@ export default class StudentRegistration extends Component {
       "City": City,
       "Token": Token
     }
-    await fetch(url + "addStudent",
-      {
-        method: 'POST',
-        body: JSON.stringify(obj2Send),
-        headers: new Headers({
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }),
-      })
-      .then((resp) => resp.json())
-      .then(function (data) {
-        if (!data.toString().includes("could not insert")) {
-          returnedObj = data;
-        }
-        else {
-          returnedObj = null;
-        }
-      })
-      .catch(function (err) {
-        alert(err);
-      });
-
-    return returnedObj;
+    const { TimeingStore } = this.props
+    const res = await Api("addStudent", "POST", obj2Send)
+    return res;
   }
   render() {
     const { FirstName, LastName, Email, Password, Telephone, BirthDate, Sex, Address, City, Token } = this.state

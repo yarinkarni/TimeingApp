@@ -1,112 +1,90 @@
 import React, { Component } from 'react'
-import { Alert, Text, View, TouchableHighlight, ImageBackground, StyleSheet, TextInput, Image } from 'react-native';
+import { Alert, Text, View, TouchableHighlight, ImageBackground, StyleSheet, TextInput, Image, InteractionManager } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Icon from 'react-native-vector-icons/Feather';
 import Fontisto from 'react-native-vector-icons/Fontisto';
-
-let url = 'http://site04.up2app.co.il/';
+import AsyncStorage from '@react-native-community/async-storage';
+import { create } from 'mobx-persist';
+import TimeingStore from '../Stores/TimeingStore';
 import { observer, inject } from 'mobx-react'
+import { Api } from '../Components/api';
+
+
+
+const hydrate = create({
+  storage: AsyncStorage,
+});
+//הפונקציה מתרחשת בעליה הראשונה לאפליקציה 
+//בעליה לאפקליקציה הפונקציה לוקחת את המידע שנשמר לוקאלית על המכשיר ושומרת בחנות 
+//בכדי שהמשתמש לא יצטרך להיכנס שוב ועוד נתונים שאצטרך ממנו
+//מספיק פרמטר אחד בכדי להביא את כל החנות
+const GetHydrate = async () => {
+  await hydrate('userData', TimeingStore).then(() =>
+    console.log('Get data from store'),
+  );
+}
+
 @inject("TimeingStore")
 @observer
 export default class Login extends Component {
+
   constructor(props) {
     super(props);
     this.state = {
-      email: 'g@g.com',
-      password: '1234',
-      picker: 'סטודנט',
+      email: '',
+      password: '',
+      picker: '',
     }
   }
-  componentDidMount = () => {
-    const { TimeingStore } = this.props
-    if (TimeingStore.getUser) {
-      this.setState({ email:TimeingStore.getUser.email,password: TimeingStore.getUser.password,picker:TimeingStore.getPicker})
-    }
+  componentDidMount = async () => {
+
+    //קורא לפונקציה
+    await GetHydrate()
+    InteractionManager.runAfterInteractions(() => {
+      const { TimeingStore } = this.props
+      if (TimeingStore.getUser) {
+        this.setState({ email: TimeingStore.getUser.Email, password: TimeingStore.getUser.Password, picker: TimeingStore.getPicker })
+        this.btnLogin()
+      }
+    })
+
   }
   txtchgEmail = (email) => this.setState({ email });
   txtchgPass = (password) => this.setState({ password });
   btnSignUp = () => this.props.navigation.navigate('Register');
   btnLogin = async () => {
-    //consot
-    this.props.TimeingStore.setPicker(this.state.picker)
-    if (this.state.picker === 'מנהל מלגה') {
-      let s = await this.checkStudentDetilsForUser(this.state.email, this.state.password);
+    const { email, password, picker } = this.state;
+    const { TimeingStore, navigation } = this.props;
+    if (picker === 'מנהל מלגה') {
+      let s = await this.checkStudentDetilsForUser(email, password, 'Users');
       if (s !== null) {
-        this.props.TimeingStore.setUser(s, 'מנהל מלגה')
-        this.props.navigation.navigate('ManagementPage');
+        TimeingStore.setUser(s)
+        navigation.navigate('ManagementPage');
       }
       else
         Alert.alert('האימייל או הסיסמא שגויים');
     }
     else {
-      let s = await this.checkStudentDetilsForStudnet(this.state.email, this.state.password);
+      let s = await this.checkStudentDetilsForUser(email, password, 'Students');
       if (s !== null) {
-        this.props.TimeingStore.setUser(s)
-        console.log(this.props.TimeingStore.getUser, 'this.props.TimeingStore.getUser')
-        this.props.navigation.navigate('menu');
+        TimeingStore.setUser(s)
+        navigation.navigate('menu');
       }
       else
         Alert.alert('האימייל או הסיסמא שגויים');
     }
   }
-  checkStudentDetilsForStudnet = async (email, password) => {
+  checkStudentDetilsForUser = async (email, password, Pick) => {
     if (email == '' || password == '') return null;
-    let returnedObj = null;
-    await fetch(url + `api/Students?email=${email}&password=${password}`,
-      {
-        method: 'GET',
-        headers: new Headers({
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }),
-      })
-      .then((resp) => resp.json())
-      .then(function (data) {
-        if (data != null) {
-          returnedObj = data;
-        }
-        else {
-          returnedObj = null;
-        }
-      })
-      .catch(function (err) {
-        alert(err);
-      });
-    return returnedObj;
-  }
-  checkStudentDetilsForUser = async (email, password) => {
-    if (email == '' || password == '') return null;
-    let returnedObj = null;
-    await fetch(url + `api/Users?email=${email}&password=${password}`,
-      {
-        method: 'GET',
-        headers: new Headers({
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }),
-      })
-      .then((resp) => resp.json())
-      .then(function (data) {
-        if (data != null) {
-          returnedObj = data;
-        }
-        else {
-          returnedObj = null;
-        }
-      })
-      .catch(function (err) {
-        alert(err);
-      });
-    return returnedObj;
+    const res = await Api(`api/${Pick}?email=${email}&password=${password}`, "GET")
+    return res;
   }
   render() {
     const { picker, email, password } = this.state;
     return (
-      <ImageBackground
-        style={styles.container}>
+      <ImageBackground style={styles.container}>
         <View style={styles.inner}>
           <Text style={styles.SecondTopic}>כניסה</Text>
-
           <View style={{ padding: 20 }}>
             <DropDownPicker
               items={[
@@ -122,10 +100,12 @@ export default class Login extends Component {
               }}
               itemStyle={{
                 justifyContent: 'flex-start',
-
               }}
               dropDownStyle={{ backgroundColor: '#fafafa' }}
-              onChangeItem={item => this.setState({ picker: item.value })} />
+              onChangeItem={item => {
+                this.props.TimeingStore.setPicker(item.value)
+                this.setState({ picker: item.value })
+              }} />
           </View>
           <View style={styles.inputContainer}>
             <TextInput style={styles.inputs}
@@ -143,7 +123,6 @@ export default class Login extends Component {
               placeholder='סיסמא'
               secureTextEntry={true}
             />
-
           </View>
           <View>
             <TouchableHighlight
