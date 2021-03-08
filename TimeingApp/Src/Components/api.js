@@ -5,8 +5,6 @@
 //וגם כיוון שה fetch קורה לא מעט באפליקציה אז רציתי שהקוד לא ירשם כל פעם מחדש
 let url = 'http://site04.up2app.co.il/';
 export const Api = async (urlName, getOrPost, reqData) => {
-  //console.log(url+urlName+'                 url')
-  //console.log(reqData,'reqData')
   try {
     return fetch(url + urlName,
       {
@@ -19,7 +17,6 @@ export const Api = async (urlName, getOrPost, reqData) => {
       })
       .then((resp) => resp.json())
       .then((data) => {
-        //console.log("data", data)
         return data
       })
   } catch (error) {
