@@ -128,7 +128,6 @@ export default class AddScholarshipPage extends Component {
                     this.setState({ location: details.geometry.location })
                   }}
                   query={{
-                    key: 'AIzaSyCutu8burmtxDFV1OxruFPkOsALRoWwWC8',
                     language: 'he',
                   }}
                   currentLocation={true}
