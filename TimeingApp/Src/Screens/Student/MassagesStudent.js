@@ -1,174 +1,74 @@
-import React, { Component, PureComponent } from 'react'
-import { View, StyleSheet, TextInput, TouchableOpacity, Text } from 'react-native'
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import { RNCamera } from 'react-native-camera';
+import React, { Component } from 'react'
+import { View, StyleSheet, ImageBackground } from 'react-native'
+import { Container, Content, List, ListItem, Thumbnail, Text, Left, Body, Right, Button, Header } from 'native-base';
+import { Api } from '../../Components/api';
+import { observer, inject } from 'mobx-react'
 
+@inject("TimeingStore")
+@observer
+export default class MassagesStudent extends Component {
 
-export default class Massages extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      GetMessages: []
+    }
+  }
+  componentDidMount = async () => {
+    const { TimeingStore } = this.props
+    let scholarshipByStudent = TimeingStore.getScholarshipByStudent
+    const GetMessages = await Api("GetMessagesByStudentID/" + TimeingStore.getUser.StudentID, "GET")
+    this.setState({ GetMessages })
+  }
+  getMessages = () => {
+    return this.state.GetMessages.map((item, index) => {
+      return (
+        <List key={item.Title}>
+          <ListItem thumbnail>
+            <Body>
+              <Text style={{ fontWeight: 'bold', color: 'black' }}>{item.Title}</Text>
+              <Text note numberOfLines={1} style={{ fontWeight: 'bold', color: 'black' }}>{item.Text}</Text>
+            </Body>
+            {/* <Right>
+              <Button transparent>
+                <Text>View</Text>
+              </Button>
+            </Right> */}
+          </ListItem>
+        </List>
+      )
+    }
+    )
+  }
   render() {
     return (
-      <View style={styles.container}>
-        <RNCamera
-          ref={ref => {
-            this.camera = ref;
-          }}
-          style={styles.preview}
-          type={RNCamera.Constants.Type.back}
-          flashMode={RNCamera.Constants.FlashMode.on}
-          androidCameraPermissionOptions={{
-            title: 'Permission to use camera',
-            message: 'We need your permission to use your camera',
-            buttonPositive: 'Ok',
-            buttonNegative: 'Cancel',
-          }}
-          androidRecordAudioPermissionOptions={{
-            title: 'Permission to use audio recording',
-            message: 'We need your permission to use your audio',
-            buttonPositive: 'Ok',
-            buttonNegative: 'Cancel',
-          }}
-          onGoogleVisionBarcodesDetected={({ barcodes }) => {
-            console.log(barcodes);
-          }}
-        />
-        <View style={{ flex: 0, flexDirection: 'row', justifyContent: 'center' }}>
-          <TouchableOpacity onPress={this.takePicture.bind(this)} style={styles.capture}>
-            <Text style={{ fontSize: 14 }}> SNAP </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
+      <ImageBackground source={require('../../images/blur.jpg')} style={styles.container} >
+        <Container style={{ backgroundColor: 'transparent', right: 0 }}>
+          <Content>
+            <View style={styles.headerView}>
+              <Header style={{ alignItems: 'center', backgroundColor: 'rgb(161, 128, 38)' }}><Text style={{ fontWeight: 'bold', color: 'white' }}>הודעות</Text></Header>
+            </View>
+            <List>
+              {this.getMessages()}
+            </List>
+          </Content>
+        </Container>
+      </ImageBackground>
+    )
   }
-
-  takePicture = async () => {
-    if (this.camera) {
-      const options = { quality: 0.5, base64: true };
-      const data = await this.camera.takePictureAsync(options);
-      console.log(data.uri);
-    }
-  };
 }
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    flexDirection: 'column',
-    backgroundColor: 'black',
+    // alignItems: 'center',
+    // backgroundColor: '#1E90FF',
+    flex: 1
   },
-  preview: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
+  headerView: {
+    //height: '20%',
+    backgroundColor: 'rgb(100,200,200)',
+    width: '100%'
   },
-  capture: {
-    flex: 0,
-    backgroundColor: '#fff',
-    borderRadius: 5,
-    padding: 15,
-    paddingHorizontal: 20,
-    alignSelf: 'center',
-    margin: 20,
-  },
-});
-
-
-
-
-// const UselessTextInput = (props) => {
-//   return (
-//     <TextInput
-//       {...props} // Inherit any props passed to it; e.g., multiline, numberOfLines below
-//       editable
-//       maxLength={200}
-//       multiline
-//       numberOfLines={4}
-//     />
-//   );
-// }
-// export default class Massages extends Component {
-//   constructor(props) {
-//     super(props);
-//     this.state = {
-//       text: '',
-//     }
-//   }
-//   txtchgtext = (text) => this.setState({ text });
-//   render() {
-//     return (
-//       <View style={s.container}>
-//         {/* <View
-//           style={{
-//             //backgroundColor: value,
-//             borderBottomColor: '#000000',
-//             //borderBottomWidth: 1,
-//             height: 200, borderColor: 'black',
-//             borderWidth: 2,
-//             width: '100%'
-
-//           }}>
-//           <UselessTextInput
-
-//             onChangeText={(text) => { this.txtchgtext(text) }}
-//           />
-//         </View>
-//         <Ionicons
-//           name="arrow-back-circle"
-//           size={50}
-//           style={s.fab}
-//           onPress={() => this.props.navigation.navigate('menu')}
-//         /> */}
-//       </View>
-//     )
-//   }
-// }
-// const s = StyleSheet.create({
-//   container: {
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     backgroundColor: '#1E90FF',
-//     opacity: 0.7,
-//     height: "100%",
-//     width: "100%"
-//   },
-//   stdBtn: {
-//     height: 50,
-//     width: 150,
-//     backgroundColor: '#00BFFF',
-//     //  'gray',
-//     borderRadius: 20,
-//     alignItems: 'center',
-//     margin: 20,
-//     justifyContent: 'center',
-//   },
-//   stdTxt: {
-//     fontSize: 20,
-//     fontFamily: 'Arial',
-//     color: 'white'
-//   },
-//   Time: {
-//     width: '70%',
-//     paddingTop: 40,
-//     justifyContent: 'space-around'
-//   },
-//   Vtxt: {
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//   },
-//   txt: {
-//     fontSize: 24,
-//     color: 'white',
-//     fontWeight: 'bold',
-//     textAlign: 'center'
-//   },
-//   picker: {
-//     backgroundColor: '#fafafa',
-//     width: 250,
-//     height: 100,
-//     position: 'relative'
-//   },
-//   fab: {
-//     position: 'absolute',
-//     margin: 16,
-//     right: 0,
-//     bottom: 0,
-//   },
-// })
+  header: {
+    alignItems: 'center'
+  }
+})

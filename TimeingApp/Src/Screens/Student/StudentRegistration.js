@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
-import { ScrollView, Image, TextInput, View, Text, StyleSheet, TouchableHighlight, ImageBackground } from 'react-native';
+import { ScrollView, Image, TextInput, View, Text, StyleSheet, TouchableHighlight, ImageBackground, KeyboardAvoidingView } from 'react-native';
+import InputOutline from 'react-native-input-outline';
+import { Container, Header, Content, Form, Item, Input, Label } from 'native-base';
 import DatePicker from 'react-native-datepicker';
 import PushNotification from "react-native-push-notification";
 import { Api } from '../../Components/api';
@@ -21,15 +23,16 @@ export default class StudentRegistration extends Component {
       City: '',
       Token: '',
       date: "2016-05-15",
+      RegistartionData: '',
     };
   }
   push = () => {
     PushNotification.configure({
       onRegister: (Token) => {
         this.setState({ Token: Token });
+        console.log(Token, 'Token')
       },
       onNotification: function (notification) {
-        console.log("NOTIFICATION:", notification);
       },
       permissions: {
         alert: true,
@@ -39,10 +42,39 @@ export default class StudentRegistration extends Component {
       popInitialNotification: true,
       requestPermissions: true,
     });
+    PushNotification.popInitialNotification((NOTIFICATION) => {
+
+    });
+    PushNotification.createChannel(
+      {
+        channelId: "channel-id", // (required)
+        channelName: "My channel", // (required)
+        channelDescription: "A channel to categorise your notifications", // (optional) default: undefined.
+        playSound: false, // (optional) default: true
+        soundName: "default", // (optional) See `soundName` parameter of `localNotification` function
+        importance: 4, // (optional) default: 4. Int value of the Android notification importance
+        vibrate: true, // (optional) default: true. Creates the default vibration patten if true.
+      },
+      (created) => console.log(`createChannel returned '${created}'`) // (optional) callback returns whether the channel was created, false means it already existed.
+    );
+    PushNotification.getChannels(function (channel_ids) {
+      console.log(channel_ids, 'channel_ids'); // ['channel_id_1']
+    });
+    //PushNotification.getDeliveredNotifications(callback);
   }
-  componentDidMount = async () => {
-    this.push
-  }
+  // testPush = () => {
+
+  //   PushNotification.localNotification({
+  //     title: "My Notification Title", // (optional)
+  //     message: "My Notification Message", // (required)
+  //   });
+  // }
+  // testSchedule = () => {
+  //   PushNotification.localNotificationSchedule({
+  //     message: "My Notification Massege",
+  //     data: new Date(Date.now() + 15 * 1000)
+  //   });
+  // }
   txtchgFirstName = (FirstName) => this.setState({ FirstName });
   txtchgLastName = (LastName) => this.setState({ LastName });
   txtchgEmail = (Email) => this.setState({ Email });
@@ -54,12 +86,17 @@ export default class StudentRegistration extends Component {
   txtchgCity = (City) => this.setState({ City });
 
   btnAddStudent = async () => {
-    let s = await this.AddStudent(this.state.FirstName, this.state.LastName, this.state.Email, this.state.Password,
-      this.state.Telephone, this.state.BirthDate, this.state.Sex, this.state.Address, this.state.City, this.state.Token.token);
-    if (s === null)
-      alert("Register Faild");
+    const { FirstName, LastName, Email, Password, Telephone, BirthDate, Sex, Address, City, Token } = this.state
+    const { navigation } = this.props
+    if (FirstName, LastName, Email, Password, Telephone, BirthDate, Sex, Address, City !== '') {
+      let s = await this.AddStudent(FirstName, LastName, Email, Password, Telephone, BirthDate, Sex, Address, City, Token.token);
+      if (s === null)
+        alert("Register Faild");
+      else
+        navigation.navigate('Login', { user: s });
+    }
     else
-      this.props.navigation.navigate('Login', { user: s });
+      alert('לא מילאת את כל השדות')
   }
   AddStudent = async (FirstName, LastName, Email, Password, Telephone, BirthDate, Sex, Address, City, Token) => {
     let obj2Send = {
@@ -79,117 +116,214 @@ export default class StudentRegistration extends Component {
     const res = await Api("addStudent", "POST", obj2Send)
     return res;
   }
+  componentDidMount = async () => {
+    const getCurrentDate = () => {
+      var date = new Date().getDate();
+      var month = new Date().getMonth() + 1;
+      var year = new Date().getFullYear();
+      return date + '-' + month + '-' + year;
+    }
+    var CurrentDate = getCurrentDate();
+    this.setState({ RegistartionData: CurrentDate })
+    this.push()
+    this.testPush()
+  }
+  btnAddUser = async () => {
+    const { FirstName, LastName, Email, Password, RegistartionData, Telephone } = this.state
+    let s;
+    if (FirstName && LastName && Email && Password && RegistartionData && Telephone !== '') {
+      s = await this.AddUser(FirstName, LastName, Email, Password, RegistartionData, Telephone);
+      if (s === null)
+        alert("Register Faild");
+      else
+        this.props.navigation.navigate('Login', { user: s });
+    }
+    else
+      alert('לא מילאת את כל השדות')
+  }
+  AddUser = async (FirstName, LastName, Email, Password, RegistartionData, Telephone) => {
+    let obj2Send = {
+      "UserID": 0,
+      "FirstName": FirstName,
+      "LastName": LastName,
+      "Email": Email,
+      "Password": Password,
+      "RegistartionData": RegistartionData,
+      "Telephone": Telephone
+    }
+    const res = await Api("addUser", "POST", obj2Send)
+    return res;
+  }
   render() {
+    const { TimeingStore } = this.props
     const { FirstName, LastName, Email, Password, Telephone, BirthDate, Sex, Address, City, Token } = this.state
     return (
-      <ImageBackground style={styles.container} >
-        <View >
-          <Image style={{ margin: 20, marginTop: 50, width: 190, height: 120 }} />
-          <Text style={styles.Topic}>הרשמה</Text>
-        </View>
+      TimeingStore.picker == 'סטודנט' ?
+        <ScrollView contentContainerStyle={styles.scrollContentContainer}>
+          <ImageBackground source={require('../../images/blur.jpg')} style={styles.container} >
+            {/* <KeyboardAvoidingView behavior="padding" > */}
+            <View >
+              <Text style={styles.Topic}>הרשמה</Text>
+            </View>
+            <View style={styles.inputContainer}>
+              <TextInput style={styles.inputs}
+                value={FirstName}
+                onChangeText={(text) => { this.txtchgFirstName(text) }}
+                placeholder="שם פרטי "
+                placeholderTextColor="#8D8F8D">
+              </TextInput>
+            </View>
+            <View style={styles.inputContainer}>
+              <TextInput style={styles.inputs}
+                value={LastName}
+                onChangeText={(text) => { this.txtchgLastName(text) }}
+                placeholder="שם משפחה "
+                placeholderTextColor="#8D8F8D">
+              </TextInput>
+            </View>
+            <View style={styles.inputContainer}>
+              <TextInput style={styles.inputs}
+                value={Email}
+                onChangeText={(text) => { this.txtchgEmail(text) }}
+                placeholder="דואר אלקטרוני "
+                placeholderTextColor="#8D8F8D">
+              </TextInput>
+            </View>
+            <View style={styles.inputContainer}>
+              <TextInput style={styles.inputs}
+                value={Password}
+                onChangeText={(text) => { this.txtchgPassword(text) }}
+                placeholder="סיסמא "
+                secureTextEntry={true}
+                placeholderTextColor="#8D8F8D">
+              </TextInput>
+            </View>
+            <View style={styles.inputContainer}>
+              <TextInput style={styles.inputs}
+                value={Telephone}
+                onChangeText={(text) => { this.txtchgTelephone(text) }}
+                placeholder="טלפון "
+                placeholderTextColor="#8D8F8D">
+              </TextInput>
+            </View>
+            <View style={styles.inputContainer}>
+              <DatePicker
+                style={styles.pick}
+                date={BirthDate}
+                mode="date"
+                androidMode='spinner'
+                placeholder="select date"
+                format="DD/MM/YYYY"
+                confirmBtnText="Confirm"
+                cancelBtnText="Cancel"
+                customStyles={{
+                  dateIcon: {
+                    position: 'absolute',
+                    left: 0,
+                    top: 4,
+                    marginLeft: 0
+                  },
+                  dateInput: {
+                    borderWidth: 0
+                  }
+                }}
+                onDateChange={(BirthDate) => { this.setState({ BirthDate }) }}
+              />
+            </View>
+            <View style={styles.inputContainer}>
+              <TextInput style={styles.inputs}
+                value={Sex}
+                onChangeText={(text) => { this.txtchgSex(text) }}
+                placeholder="מין "
+                placeholderTextColor="#8D8F8D">
+              </TextInput>
+            </View>
+            <View style={styles.inputContainer}>
+              <TextInput style={styles.inputs}
+                value={Address}
+                onChangeText={(text) => { this.txtchgAddress(text) }}
+                placeholder="כתובת  "
+                placeholderTextColor="#8D8F8D">
+              </TextInput>
+            </View>
+            <View style={styles.inputContainer}>
+              <TextInput style={styles.inputs}
+                value={City}
+                onChangeText={(text) => { this.txtchgCity(text) }}
+                placeholder="עיר מגורים "
+                placeholderTextColor="#8D8F8D">
+              </TextInput>
+            </View>
+            {/* </KeyboardAvoidingView> */}
+            <TouchableHighlight
+              style={[styles.buttonContainer, styles.loginButton]}
+              onPress={this.btnAddStudent}>
+              <Text style={styles.loginText}>הירשם</Text>
+            </TouchableHighlight>
+            {/* </KeyboardAvoidingView> */}
+          </ImageBackground>
+        </ScrollView>
+
+        :
         <ScrollView
           contentContainerStyle={styles.scrollContentContainer}
         >
-          <View style={styles.inputContainer}>
-            <TextInput style={styles.inputs}
-              value={FirstName}
+          <ImageBackground source={require('../../images/blur.jpg')} style={styles.container} >
+            <View >
+              <Text style={styles.Topic}>הרשמה</Text>
+            </View>
+            <InputOutline
+              style={styles.inputContainer}
+              placeholder="שם פרטי"
+              focusedColor='blue'
+              defaultColor='grey'
+              value={this.state.firstName}
               onChangeText={(text) => { this.txtchgFirstName(text) }}
-              placeholder="שם פרטי "
-              placeholderTextColor="#000000">
-            </TextInput>
-          </View>
-          <View style={styles.inputContainer}>
-            <TextInput style={styles.inputs}
-              value={LastName}
-              onChangeText={(text) => { this.txtchgLastName(text) }}
-              placeholder="שם משפחה "
-              placeholderTextColor="#000000">
-            </TextInput>
-          </View>
-          <View style={styles.inputContainer}>
-            <TextInput style={styles.inputs}
-              value={Email}
-              onChangeText={(text) => { this.txtchgEmail(text) }}
-              placeholder="דואר אלקטרוני "
-              placeholderTextColor="#000000">
-            </TextInput>
-          </View>
-          <View style={styles.inputContainer}>
-            <TextInput style={styles.inputs}
-              value={Password}
-              onChangeText={(text) => { this.txtchgPassword(text) }}
-              placeholder="סיסמא "
-              placeholderTextColor="#000000">
-            </TextInput>
-          </View>
-          <View style={styles.inputContainer}>
-            <TextInput style={styles.inputs}
-              value={Telephone}
-              onChangeText={(text) => { this.txtchgTelephone(text) }}
-              placeholder="טלפון "
-              placeholderTextColor="#000000">
-            </TextInput>
-          </View>
-          <View style={styles.inputContainer}>
-            <DatePicker
-              style={{ width: 200 }}
-              date={BirthDate}
-              mode="date"
-              placeholder="select date"
-              format="DD/MM/YYYY"
-              confirmBtnText="Confirm"
-              cancelBtnText="Cancel"
-              customStyles={{
-                dateIcon: {
-                  position: 'absolute',
-                  left: 0,
-                  top: 4,
-                  marginLeft: 0
-                },
-                dateInput: { marginLeft: 36 }
-              }}
-              onDateChange={(BirthDate) => { this.setState({ BirthDate }) }}
             />
-          </View>
-          <View style={styles.inputContainer}>
-            <TextInput style={styles.inputs}
-              value={Sex}
-              onChangeText={(text) => { this.txtchgSex(text) }}
-              placeholder="מין "
-              placeholderTextColor="#000000">
-            </TextInput>
-          </View>
-          <View style={styles.inputContainer}>
-            <TextInput style={styles.inputs}
-              value={Address}
-              onChangeText={(text) => { this.txtchgAddress(text) }}
-              placeholder="כתובת : "
-              placeholderTextColor="#000000">
-            </TextInput>
-          </View>
-          <View style={styles.inputContainer}>
-            <TextInput style={styles.inputs}
-              value={City}
-              onChangeText={(text) => { this.txtchgCity(text) }}
-              placeholder="עיר מגורים "
-              placeholderTextColor="#000000">
-            </TextInput>
-          </View>
-
+            <InputOutline
+              style={styles.inputContainer}
+              placeholder="שם משפחה"
+              focusedColor='blue'
+              defaultColor='grey'
+              value={this.state.lastName}
+              onChangeText={(text) => { this.txtchgLastName(text) }}
+            />
+            <InputOutline
+              style={styles.inputContainer}
+              placeholder="אימייל"
+              focusedColor='blue'
+              defaultColor='grey'
+              value={this.state.email}
+              onChangeText={(text) => { this.txtchgEmail(text) }}
+            />
+            <InputOutline
+              style={styles.inputContainer}
+              placeholder="סיסמא"
+              secureTextEntry={true}
+              focusedColor='blue'
+              defaultColor='grey'
+              value={this.state.password}
+              onChangeText={(text) => { this.txtchgPassword(text) }}
+            />
+            <InputOutline
+              style={styles.inputContainer}
+              placeholder="טלפון"
+              value={this.state.telephone}
+              onChangeText={(text) => { this.txtchgTelephone(text) }}
+            />
+            <TouchableHighlight style={[styles.buttonContainer, styles.loginButton]} onPress={this.btnAddUser}>
+              <Text style={styles.loginText}>הירשם</Text>
+            </TouchableHighlight>
+          </ImageBackground>
         </ScrollView>
-
-        <TouchableHighlight
-          style={[styles.buttonContainer, styles.loginButton]}
-          onPress={this.btnAddStudent}>
-          <Text style={styles.loginText}>הירשם</Text>
-        </TouchableHighlight>
-      </ImageBackground>
     )
   }
 }
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    //flex: 1,
+    height: '120%',
+    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#DCDCDC',
@@ -199,43 +333,69 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 30,
     borderBottomWidth: 1,
-    width: 250,
+    width: '70%',
     height: 45,
-    marginBottom: 20,
+    marginBottom: 10,
     flexDirection: 'row',
     alignItems: 'center',
   },
   inputs: {
+    textAlign: 'right',
     height: 45,
-    marginRight: 16,
-    borderBottomColor: '#FFFFFF',
-    flex: 1,
-    fontWeight: 'bold'
+    width: '100%',
+    //marginRight: 16,
+    paddingHorizontal: 20,
+    borderBottomColor: '#8D8F8D',
+    // flex: 1,
+    fontWeight: 'bold',
   },
   buttonContainer: {
+    top: '3%',
     height: 45,
-    flexDirection: 'row',
+    //flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
-    width: 250,
+    width: '40%',
     borderRadius: 30,
   },
   loginButton: {
-    backgroundColor: "#0000FF",
+    backgroundColor: "black",
   },
   loginText: {
     color: '#FFFFFF',
+    fontSize: 20,
+    fontWeight: 'bold'
   },
   scrollContentContainer: {
     alignItems: "center",
-    paddingBottom: 60
+    paddingBottom: 60,
+    //paddingTop: 20,
+    width: '100%',
+    // height: '500%',
+    justifyContent: 'center',
+    alignItems: 'center'
+
   },
   Topic: {
     textAlign: 'center',
     margin: 20,
-    color: '#FFFFFF',
     fontSize: 30,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    color: '#1A1A1A',
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: -3, height: 3 },
+    textShadowRadius: 20
+  },
+  img: {
+    margin: 20,
+    marginTop: 50,
+    width: 190,
+    height: 120
+  },
+  pick: {
+    width: '100%',
+    borderColor: 'white',
+    paddingHorizontal: 20,
   }
 });

@@ -1,12 +1,9 @@
 import React, { Component } from 'react'
-import { View, Text, TouchableOpacity, StyleSheet, InteractionManager } from 'react-native'
+import { View, TouchableOpacity, StyleSheet, InteractionManager, ImageBackground } from 'react-native'
 import Geolocation from '@react-native-community/geolocation';
 import DropDownPicker from 'react-native-dropdown-picker';
-import Icon from 'react-native-vector-icons/Feather';
 import { observer, inject } from 'mobx-react'
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import moment from 'moment';
-//import { DateTime } from 'react-datetime'
+import { Text, Header } from 'native-base';
 import { Api } from '../../Components/api';
 
 
@@ -38,19 +35,15 @@ export default class Report extends Component {
     const { TimeingStore } = this.props
     await this.getScholorshipsByStudent()
     TimeingStore.getReportData && this.setState({ ...TimeingStore.getReportData })
-    //console.log(this.state.scholarships, 'tss')
   }
-
   getScholorshipsByStudent = async () => {
     const { TimeingStore } = this.props
-    const res = await Api("getRequestsByStudentID/" + TimeingStore.getUser.StudentID, "GET")
-    if (res) {
+    const res = await Api("GetNameScholarship/" + TimeingStore.getUser.StudentID, "GET")
+    if (res)
       this.props.TimeingStore.setScholarshipByStudent(res)
-    }
     this.setState({ scholarshipByStudent: res.length ? res : [] });
     return res;
   }
-
   btnStart = () => {
     let reportData = {}
     Geolocation.getCurrentPosition((info) => {
@@ -71,8 +64,6 @@ export default class Report extends Component {
   }
   btnEnd = () => {
     Geolocation.getCurrentPosition((info) => {
-      console.log(info.coords.latitude, 'dddd');
-      console.log(info.coords.longitude, 'dddddddd');
       this.props.TimeingStore.setReportData(null)
       this.setState({
         EndLat: info.coords.latitude,
@@ -97,60 +88,66 @@ export default class Report extends Component {
         "EndTime": EndTime,
         "Approval": Approval
       }
-      console.log("obj2Send", obj2Send)
-
       const res = await Api("addReport", "POST", obj2Send)
-      console.log(res, 'res')
       if (res) {
-        console.log(res, 'res')
         alert("הדווח נוסף בהצלחה :)")
-        this.props.navigation.navigate('menu');
+        this.props.navigation.navigate('Menu');
       } else {
         alert("ההוספה נכשלה :(")
       }
       return res;
     })
   }
+  //פונקציה שמכניסה למערך את הערכים בשביל הפיקר
   filterScholarshipsByStudentID = (scholarships) => {
     const { scholarshipByStudent } = this.state
     let newScholarshipByStudent = []
-    scholarships.forEach(s => {
-      if (scholarshipByStudent.findIndex(a => a.ScholarshipID == s.ScholarshipID) != -1) {
-        let FilterScholatships = s
-        FilterScholatships["label"] = s.NameOfTheScholarship
-        newScholarshipByStudent.push(FilterScholatships)
-      }
-    });
+    scholarshipByStudent.forEach(item => {
+      let FilterScholatships = item
+      FilterScholatships["label"] = item.NameOfTheScholarship
+      newScholarshipByStudent.push(FilterScholatships)
+    })
+    // scholarships.forEach(s => {
+    //   if (scholarshipByStudent.findIndex(a => a.ScholarshipID == s.ScholarshipID) != -1) {
+    //     let FilterScholatships = s
+    //     FilterScholatships["label"] = s.NameOfTheScholarship
+    //     newScholarshipByStudent.push(FilterScholatships)
+    //   }
+    // });
     return newScholarshipByStudent
   }
 
   render() {
     const { EndTime, StartTime, scholarships, scholarshipByStudent, selectedScholorships, curTime } = this.state
     const { TimeingStore, navigation } = this.props
+    console.log('EndTime', EndTime)
+    const Entrance = StartTime ? <Text style={s.stdTxt}>  כניסה : {StartTime.substring(11, 19)}
+    </Text> : <Text style={s.stdTxt}>כניסה :</Text>
+    const exit = EndTime ? <Text style={s.stdTxt}>
+      יציאה :{EndTime.substring(11, 19)}
+    </Text> : <Text style={s.stdTxt}>יציאה :</Text>
     const getActiveScholarships = this.filterScholarshipsByStudentID(scholarships)
-    //console.log(scholarshipByStudent, 'scholarshipByStudent')
     return (
-      <View style={[s.container]}>
-        <Ionicons
-          name="arrow-back-circle"
-          size={50}
-          style={s.fab}
-          onPress={() => navigation.navigate('menu')}
-        />
+      <ImageBackground source={require('../../images/blur.jpg')} style={s.container}>
+        <View style={{ backgroundColor: 'rgba(100,200,200,0.6)', width: '100%' }}>
+          <Header style={{ alignItems: 'center', backgroundColor: 'rgb(161, 128, 38)' }}><Text style={{ fontWeight: 'bold', color: 'white' }}>דווח</Text></Header>
+        </View>
         <View style={s.Time}>
           <Text>{curTime}</Text>
           <Text style={s.stdTxt}>
             שלום {TimeingStore.getUser.FirstName}
           </Text>
-          <View style={[{ padding: 20 }, StartTime && { opacity: 0.7 }]}>
+          <View style={[{ padding: 20, height: 200 }, StartTime && { opacity: 0.7 }]}>
             <DropDownPicker
               items={getActiveScholarships}
               disabled={StartTime ? true : false}
               containerStyle={{ height: 40 }}
+              placeholder="בחר לאיזו מלגה תרצה לדווח "
               style={s.picker}
               itemStyle={{ justifyContent: 'flex-start' }}
               dropDownStyle={{ backgroundColor: '#fafafa' }}
               onChangeItem={item => { this.setState({ selectedScholorships: item, ScholarshipID: item.ScholarshipID }) }} />
+
           </View>
         </View>
 
@@ -159,22 +156,19 @@ export default class Report extends Component {
           //במידה וכן מציג לו אותם ורק כאשר הוא בוחר מלגה הוא יוכל לדווח
           //במידה ודווח כניסה הכפתור הופך ליציאה וכל שאר העמוד הופך ללא לחיץ
           //עד שיעשה יציאה מהלגה
-          <View>
-            <View style={{ flexWrap: 'wrap', justifyContent: 'space-around', flexDirection: 'row' }}>
+          <View >
+            <View style={s.button}>
               <TouchableOpacity style={[s.stdBtn, StartTime && { backgroundColor: 'red' }]}
                 onPress={StartTime ? this.btnEnd : this.btnStart}>
                 <Text style={[s.stdTxt]}>{StartTime ? 'יציאה' : 'כניסה'}</Text>
               </TouchableOpacity>
-              {/* <TouchableOpacity style={s.stdBtn} onPress={() => navigation.navigate('WatchingHours')}>
-                <Text style={s.stdTxt}>צפייה בשעות </Text>
-              </TouchableOpacity> */}
             </View>
             <View style={s.Time}>
               <Text style={s.stdTxt}>
-                שעת כניסה : {StartTime}
+                {Entrance}
               </Text>
               <Text style={s.stdTxt} >
-                שעת יציאה :  {EndTime}
+                {exit}
               </Text>
             </View>
           </View>
@@ -185,24 +179,20 @@ export default class Report extends Component {
             </Text>
           </View>
         }
-      </View>
+      </ImageBackground>
     )
   }
 }
 const s = StyleSheet.create({
   container: {
-    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#1E90FF',
-    opacity: 0.7,
-    height: "100%",
-    width: "100%"
+    // backgroundColor: '#1E90FF',
+    flex: 1
   },
   stdBtn: {
     height: 50,
     width: 150,
-    backgroundColor: '#00BFFF',
-    //  'gray',
+    backgroundColor: 'rgb(161, 128, 38)',
     borderRadius: 20,
     alignItems: 'center',
     margin: 20,
@@ -211,11 +201,12 @@ const s = StyleSheet.create({
   stdTxt: {
     fontSize: 20,
     fontFamily: 'Arial',
-    color: 'white'
+    color: 'black',
+    textAlign: 'center'
   },
   Time: {
     width: '70%',
-    paddingTop: 40,
+    //paddingTop: 40,
     justifyContent: 'space-around'
   },
   Vtxt: {
@@ -224,7 +215,7 @@ const s = StyleSheet.create({
   },
   txt: {
     fontSize: 24,
-    color: 'white',
+    color: 'black',
     fontWeight: 'bold',
     textAlign: 'center'
   },
@@ -240,4 +231,9 @@ const s = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
+  button: {
+    flexWrap: 'wrap',
+    justifyContent: 'space-around',
+    flexDirection: 'row'
+  }
 })
