@@ -9,28 +9,31 @@ class TimeingStore {
   @persist('object') @observable reportData = null;
 
   //משתנים לוקאלי של האפליקציה
-  //@observable user = '';
   @observable ScholarshipDetails = null;
   @observable news = [];
   @observable Token = '';
   @observable scholorships = [];
   @observable scholarshipByStudent = []
 
-  testPush = () => {
-    PushNotification.localNotification({
-      title: "My Notification Title", // (optional)
-      message: "My Notification Message", // (required)
+  push = () => {
+    PushNotification.configure({
+      onRegister: (Token) => {
+        this.setState({ Token: Token });
+      },
+      onNotification: function (notification) {
+      },
+      permissions: {
+        alert: true,
+        badge: true,
+        sound: true,
+      },
+      popInitialNotification: true,
+      requestPermissions: true,
     });
   }
-  testCancel = () => {
-    PushNotification.cancelAllLocalNotifications()
-  }
-  testSchedule = () => {
-    PushNotification.localNotificationSchedule({
-      message: "My Notification Massege",
-      data: new Date(Date.now() + 15 * 1000)
-    });
-  }
+
+
+
   //מחזיר משתנים
   @computed
   get getScholorships() {
@@ -69,12 +72,10 @@ get getPicker(){
   }
   @action
   setReportData(data) {
-    //console.log("data - - - ->",data)
     this.reportData = data
   }
   @action
   setUser(userData) {
-    //console.log("data - - - ->",userData)
     this.userData = userData
   }
   @action
