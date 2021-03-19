@@ -1,9 +1,15 @@
 import React, { Component } from 'react';
-import { View, ScrollView, StyleSheet, Alert } from 'react-native';
+import { View, ScrollView, StyleSheet, Alert, TouchableOpacity, Text, LogBox } from 'react-native';
 import { Card, CardTitle, CardContent, CardAction, CardButton, CardImage } from 'react-native-cards';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import { observer, inject } from 'mobx-react'
 import { Api } from '../../Components/api';
+
+// Ignore log notification by message:
+//LogBox.ignoreLogs(['Warning: ...']);
+
+// Ignore all log notifications:
+//LogBox.ignoreAllLogs();
 @inject("TimeingStore")
 @observer
 export default class ManagementPage extends Component {
@@ -17,14 +23,17 @@ export default class ManagementPage extends Component {
   componentDidMount = async () => {
     const { TimeingStore } = this.props
     await this.setState({ userID: TimeingStore.getUser.UserID })
+
     this.getAllScholarships();
   }
   getAllScholarships = async () => {
     const { TimeingStore } = this.props
     const { userID } = this.state
-    const res = await Api('getScholarshipByUserID/' + userID, "GET")
+    const res = await Api("getScholarshipByUserID/" + userID, "GET")
     if (res)
       this.setState({ Scholarship: res });
+    //console.log(res[0], 'Scholarship')
+
     return res;
   }
   btnDeleteScholarship = (Scholarship) => {
@@ -32,13 +41,14 @@ export default class ManagementPage extends Component {
   }
   render() {
     const { Scholarship } = this.state;
+    const { TimeingStore, navigation } = this.props;
     var cards = [];
     //מציג את כל המלגות של אותו מנהל בכרטיסיות עם תפריט לכל מלגה
     for (let index = 0; index < Scholarship.length; index++) {
       cards.push(
         <Card key={index}>
           <CardImage
-            source={{ uri: 'http://bit.ly/2GfzooV' }}
+            source={{ uri: 'http://site04.up2app.co.il/images/Ex/' + Scholarship[index].NameOfTheScholarship + '.jpg' }}
             title={Scholarship[index]?.NameOfTheScholarship}
           />
           <CardTitle
@@ -48,79 +58,17 @@ export default class ManagementPage extends Component {
           <CardAction
             separator={true}
             inColumn={false}>
-            <CardButton
-              onPress={() => this.props.navigation.navigate('EditScholarship'
-                , { ScholarshipDetails: Scholarship[index] }
-              )}
-              title="עריכה"
-              color="#FEB557"
-            />
-            <CardButton
-              onPress={() => {
-                Alert.alert(
-                  'האם למחוק את המלגה ?',
-                  '',
-                  [
-                    {
-                      text: '',
-                      onPress: () => console.log('Ask me later pressed')
-                    },
-                    {
-                      text: 'לא',
-                      onPress: () => console.log('Cancel Pressed'),
-                      style: 'cancel',
-                    },
-                    {
-                      text: 'כן',
-                      onPress: () => this.btnDeleteScholarship(Scholarship[index])
-                    },
-                  ],
-                  { cancelable: false },
-                );
-              }}
-              title="מחיקה"
-              color="#FEB557"
-            />
-            <CardButton
-              onPress={() => this.props.navigation.navigate('ApprovalOfScholarships'
-                , { ScholarshipDetails: Scholarship[index] }
-              )}
-              title="סטודנטים"
-              color="#FEB557"
-            />
-            <CardButton
-              onPress={() => this.props.navigation.navigate('ApprovalOfReports'
-                , { ScholarshipDetails: Scholarship[index] }
-              )}
-              title="אישור שעות"
-              color="#FEB557"
-            />
-            <CardButton
-              onPress={() => {
-                Alert.alert(
-                  'האם למחוק את המלגה ?',
-                  '',
-                  [
-                    {
-                      text: '',
-                      onPress: () => console.log('Ask me later pressed')
-                    },
-                    {
-                      text: 'לא',
-                      onPress: () => console.log('Cancel Pressed'),
-                      style: 'cancel',
-                    },
-                    {
-                      text: 'כן',
-                      onPress: () => this.btnDeleteScholarship(Scholarship[index])
-                    },
-                  ],
-                  { cancelable: false },
-                );
-              }}
-              title="הודעות"
-              color="#FEB557"
-            />
+            <View style={{ width: '100%', height: 40, alignItems: 'center', justifyContent: 'center' }}>
+              <TouchableOpacity style={{ borderRadius: 10, backgroundColor: 'black', width: '50%', height: 30, alignItems: 'center', justifyContent: 'center' }}
+                onPress={() => {
+                  this.props.navigation.navigate('ConfirmationOfHours'
+                    , { ScholarshipDetails: Scholarship[index] }
+                  ),
+                    TimeingStore.setScholarshipDetails(Scholarship[index])
+                }} >
+                <Text style={{ color: 'white' }}>סטודנטים</Text>
+              </TouchableOpacity>
+            </View>
           </CardAction>
         </Card>
       )
@@ -130,7 +78,7 @@ export default class ManagementPage extends Component {
         <ScrollView>
           {cards}
         </ScrollView>
-        <FontAwesome name="user-plus" size={50} style={styles.fab}
+        <AntDesign name="pluscircle" size={50} style={styles.fab}
           onPress={() => this.props.navigation.navigate('AddScholarshipPage')}
         />
       </View>
@@ -159,5 +107,6 @@ const styles = StyleSheet.create({
     margin: 16,
     right: 0,
     bottom: 0,
+    color: '#0E30C1'
   },
 });

@@ -54,61 +54,60 @@ export default class Register extends Component {
   }
   render() {
     return (
-      <ImageBackground style={styles.container} >
-        <View >
-          <Image style={{ margin: 20, marginTop: 50, width: 190, height: 120 }} />
-          <Text style={styles.Topic}>הרשמה</Text>
-        </View>
-        <ScrollView
-          contentContainerStyle={styles.scrollContentContainer}
-        >
-          <InputOutline
-            style={styles.inputContainer}
-            placeholder="שם פרטי"
-            focusedColor='blue'
-            defaultColor='grey'
-            value={this.state.firstName}
-            onChangeText={(text) => { this.txtchgFirstName(text) }}
-          />
-          <InputOutline
-            style={styles.inputContainer}
-            placeholder="שם משפחה"
-            focusedColor='blue'
-            defaultColor='grey'
-            value={this.state.lastName}
-            onChangeText={(text) => { this.txtchgLastName(text) }}
-          />
-          <InputOutline
-            style={styles.inputContainer}
-            placeholder="אימייל"
-            focusedColor='blue'
-            defaultColor='grey'
-            value={this.state.email}
-            onChangeText={(text) => { this.txtchgEmail(text) }}
-          />
-          <InputOutline
-            style={styles.inputContainer}
-            placeholder="סיסמא"
-            focusedColor='blue'
-            defaultColor='grey'
-            value={this.state.password}
-            onChangeText={(text) => { this.txtchgPassword(text) }}
-          />
-          <InputOutline
-            style={styles.inputContainer}
-            placeholder="טלפון"
-            //focusedColor='blue'
-            //defaultColor='grey'
-            value={this.state.telephone}
-            onChangeText={(text) => { this.txtchgTelephone(text) }}
-          />
-
-        </ScrollView>
-
-        <TouchableHighlight style={[styles.buttonContainer, styles.loginButton]} onPress={this.btnAddUser}>
-          <Text style={styles.loginText}>הירשם</Text>
-        </TouchableHighlight>
-      </ImageBackground>
+      <ScrollView
+        contentContainerStyle={styles.scrollContentContainer}
+      >
+        <ImageBackground style={styles.container} >
+          <View >
+            <Text style={styles.Topic}>הרשמה</Text>
+          </View>
+          <ScrollView
+            contentContainerStyle={styles.scrollContentContainer}
+          >
+            <InputOutline
+              style={styles.inputContainer}
+              placeholder="שם פרטי"
+              focusedColor='blue'
+              defaultColor='grey'
+              value={this.state.firstName}
+              onChangeText={(text) => { this.txtchgFirstName(text) }}
+            />
+            <InputOutline
+              style={styles.inputContainer}
+              placeholder="שם משפחה"
+              focusedColor='blue'
+              defaultColor='grey'
+              value={this.state.lastName}
+              onChangeText={(text) => { this.txtchgLastName(text) }}
+            />
+            <InputOutline
+              style={styles.inputContainer}
+              placeholder="אימייל"
+              focusedColor='blue'
+              defaultColor='grey'
+              value={this.state.email}
+              onChangeText={(text) => { this.txtchgEmail(text) }}
+            />
+            <InputOutline
+              style={styles.inputContainer}
+              placeholder="סיסמא"
+              focusedColor='blue'
+              defaultColor='grey'
+              value={this.state.password}
+              onChangeText={(text) => { this.txtchgPassword(text) }}
+            />
+            <InputOutline
+              style={styles.inputContainer}
+              placeholder="טלפון"
+              value={this.state.telephone}
+              onChangeText={(text) => { this.txtchgTelephone(text) }}
+            />
+          </ScrollView>
+          <TouchableHighlight style={[styles.buttonContainer, styles.loginButton]} onPress={this.btnAddUser}>
+            <Text style={styles.loginText}>הירשם</Text>
+          </TouchableHighlight>
+        </ImageBackground>
+      </ScrollView>
     )
   }
 }
@@ -118,17 +117,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#1E90FF',
-    opacity: 0.7,
-    //backgroundColor: '#DCDCDC',
+
   },
   inputContainer: {
-    //borderBottomColor: '#F5FCFF',
-    //backgroundColor: '#FFFFFF',
-    //borderRadius: 30,
-    //borderBottomWidth: 1,
     width: 250,
-    //height: 45,
-    //marginBottom: 20,
     flexDirection: 'row-reverse',
     alignItems: 'center',
     color: 'black'
@@ -156,9 +148,9 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   scrollContentContainer: {
+    width: '100%',
     alignItems: "center",
     paddingBottom: 60,
-
   },
   Topic: {
     textAlign: 'center',
